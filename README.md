@@ -2,8 +2,8 @@
 
 An interactive, browser-based version of the Student's t-Test activity, built to go with the Two-Sample t-Test lecture. Students compare two groups step by step, using real biology examples (lizard tail lengths, tree frog body mass, red-winged blackbird antibodies). The app checks their answers as they go.
 
-**Live site:** https://lizferguson5.github.io/t-test/
-(If you name the repository something else, the link becomes `https://lizferguson5.github.io/REPO-NAME/`.)
+**Live site:** [https://lizferguson5.github.io/t-test/](https://lizferguson5.github.io/two-samples/#which)
+
 
 ## What's inside
 
