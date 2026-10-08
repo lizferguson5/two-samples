@@ -45,14 +45,3 @@ Nine tabs, meant to be worked through in order. Each tab ends with a short **Try
 
 The **Teacher Guide** (`Two-Sample_t-Test_Lab_Teacher_Guide.docx`) and the **Canvas questions with answer key** (`Two-Sample_t-Test_Lab_Canvas_Questions.docx`) belong in Canvas or your own files, not in this repository, so students can't see the answers.
 
-## First-time setup (GitHub Pages)
-
-1. Create a new **public** repository named `t-test` and upload `index.html` and `README.md`.
-2. Go to **Settings → Pages**. Under **Build and deployment**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and click **Save**.
-3. After about a minute, refresh that page to see the live link.
-
-## Updating the site
-
-1. In the repository, click `index.html`, then the pencil (edit) icon.
-2. Select all, paste in the new version, and click **Commit changes**.
-3. The live site updates within about a minute.
