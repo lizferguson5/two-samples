@@ -1,0 +1,1495 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Two-Sample t-Test Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: single reading column on graph-paper ground; nine numbered tabs follow the lecture order; t-table drawer and calculator reachable from any tab. Tokens match the Toothpick Challenge app. */
+  :root{
+    --paper:#F7F8FA; --wash1:#E3EEF7; --wash2:#F6EBDD; --panel:#FFFFFF; --ink:#1B2430; --muted:#5B6672; --line:#D8DEE0;
+    --navy:#1F4E79; --navy-dim:#33648f;
+    --tcol:#1F4E79; --tfill:#DCEBF6;
+    --zcol:#4F9E6E; --zfill:#E1F1E5;
+    --amber:#D86F1A; --amber-fill:#F4E1C4;
+    --good:#3C8A5B; --good-fill:#E3F3E9;
+    --bad:#B24242; --bad-fill:#F7E4E4;
+    --concept:#FBF7EE;
+    --pv:#6B4FA0; --pv-fill:#ECE5F6;
+    --radius:14px;
+    --f-display:'Fraunces', Georgia, serif;
+    --f-body:'Inter', system-ui, -apple-system, sans-serif;
+    --f-mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"]{
+    --paper:#161A1F; --wash1:#1C2733; --wash2:#241F1A; --panel:#1E242B; --ink:#E7EBEE; --muted:#9AA6B1; --line:#333C45;
+    --navy:#8FC0EA; --navy-dim:#6FA6D6;
+    --tcol:#8FC0EA; --tfill:#213241;
+    --zcol:#79C99A; --zfill:#1F3327;
+    --amber:#F08A3C; --amber-fill:#3A2E1A;
+    --good:#7FCE9E; --good-fill:#1E3327;
+    --bad:#E08080; --bad-fill:#3A2323;
+    --concept:#26211a;
+    --pv:#B9A2E8; --pv-fill:#2C2540;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper);
+    background-image: radial-gradient(1200px 520px at 85% -120px, var(--wash1), transparent 70%), radial-gradient(900px 480px at -10% 0, var(--wash2), transparent 70%);
+    background-repeat:no-repeat; background-attachment: fixed;
+    color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--navy);}
+  .wrap{max-width:880px;margin:0 auto;padding-inline:18px;padding-block:36px 110px;}
+  header.hero{padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:24px;}
+  .eyebrow{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.03em;margin:0 0 10px;}
+  h1{font-family:var(--f-display);font-weight:600;font-size:clamp(28px,5.4vw,42px);line-height:1.08;margin:0 0 14px;color:var(--navy);text-wrap:balance;}
+  .hero p{max-width:62ch;color:var(--muted);font-size:16px;margin:0 0 10px;}
+  .howto{max-width:64ch;margin-top:14px;padding:14px 16px;border-radius:10px;background:var(--tfill);border:1px solid color-mix(in srgb, var(--tcol) 35%, var(--line));}
+  .howto .tag{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--tcol);font-weight:600;letter-spacing:.04em;margin-bottom:5px;text-transform:uppercase;}
+  .howto p{margin:0;font-size:14.5px;color:var(--ink);}
+
+  .section-nav{display:flex;flex-direction:column;gap:10px;margin-bottom:34px;}
+  .nav-row{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;}
+  .nav-row .partlab{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);width:56px;letter-spacing:.04em;text-transform:uppercase;}
+  .section-nav a{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:5px 14px 5px 5px;font-size:13px;color:var(--ink);text-decoration:none;}
+  .section-nav a:hover,.section-nav a:focus-visible{border-color:var(--navy-dim);}
+
+  .part-divider{display:flex;align-items:baseline;gap:14px;margin:58px 0 22px;padding-top:18px;border-top:2px solid var(--navy);}
+  .part-divider .pn{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--navy);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+  .part-divider .pt{font-family:var(--f-display);font-size:clamp(22px,4vw,28px);font-weight:600;color:var(--ink);text-wrap:balance;}
+  .part-divider:first-of-type{margin-top:10px;}
+
+  h2{font-family:var(--f-display);font-weight:600;font-size:23px;color:var(--navy);margin:0 0 6px;display:flex;align-items:center;gap:12px;text-wrap:balance;}
+  .secnum{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;flex:none;background:var(--navy);color:var(--panel);font-family:var(--f-mono);font-size:16px;font-weight:600;}
+  .secnum.small{width:22px;height:22px;font-size:12px;}
+  h3{font-size:16px;margin:0 0 6px;}
+  .section{margin-bottom:46px;}
+  .lede{color:var(--muted);max-width:64ch;margin:0 0 18px;font-size:15px;}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;min-width:0;}
+  .panel + .panel{margin-top:14px;}
+  .num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;}
+
+  .explain-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:16px;}
+  @media(min-width:680px){.explain-grid{grid-template-columns:repeat(3,1fr);}}
+  .explain-grid.two{grid-template-columns:1fr;}
+  @media(min-width:680px){.explain-grid.two{grid-template-columns:1fr 1fr;}}
+  .explain-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;min-width:0;}
+  .explain-card .tag{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase;}
+  .explain-card.z .tag{color:var(--zcol);} .explain-card.t .tag{color:var(--tcol);}
+  .explain-card p{margin:0;font-size:14.5px;}
+
+  .controls{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:150px;flex:1 1 170px;}
+  .field label,.field .flabel{font-size:12.5px;color:var(--muted);font-weight:600;}
+  select,input[type=number],input[type=text]{font-family:var(--f-mono);font-size:15px;padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);}
+  input[type=range]{width:100%;accent-color:var(--navy);}
+  .slider-row{display:flex;align-items:center;gap:12px;}
+  .slider-row output{font-family:var(--f-mono);font-weight:600;color:var(--navy);min-width:44px;text-align:right;}
+  .check{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted);}
+  .check input{accent-color:var(--navy);width:16px;height:16px;}
+  :focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+
+  svg{display:block;width:100%;height:auto;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--muted);margin-top:10px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .sw{width:16px;height:10px;border-radius:2px;display:inline-block;flex:none;}
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0;}
+  .stat .k{display:block;font-size:11.5px;color:var(--muted);margin-bottom:2px;}
+  .stat .v{display:block;font-family:var(--f-mono);font-size:19px;font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums;}
+  .stat.z .v{color:var(--zcol);} .stat.bad .v{color:var(--bad);} .stat.amber .v{color:var(--amber);} .stat.good .v{color:var(--good);}
+  .callout{margin-top:14px;padding:14px 16px;border-radius:10px;background:var(--amber-fill);border:1px solid color-mix(in srgb, var(--amber) 40%, var(--line));font-size:15px;}
+  .callout .big{font-family:var(--f-mono);font-weight:600;color:var(--amber);}
+  .note{font-size:13.5px;color:var(--muted);margin-top:10px;}
+  .tryit{margin:14px 0 0;padding:12px 16px 12px 34px;background:var(--concept);border:1px solid var(--line);border-radius:10px;font-size:14px;}
+  .tryit li{margin:3px 0;}
+  .tryit-h{font-size:12px;font-weight:700;color:var(--navy);letter-spacing:.04em;text-transform:uppercase;margin:16px 0 0;}
+
+  .twocol{display:grid;grid-template-columns:1fr;gap:16px;}
+  @media(min-width:720px){.twocol{grid-template-columns:1fr 1fr;}}
+  .hcard{border-radius:12px;padding:14px;border:1px solid var(--line);min-width:0;}
+  .hcard.z{background:var(--zfill);} .hcard.t{background:var(--tfill);}
+  .hcard h3{font-size:14.5px;}
+  .hcard.z h3{color:var(--zcol);} .hcard.t h3{color:var(--tcol);}
+
+  .btn{background:none;border:1px solid var(--navy-dim);color:var(--navy-dim);padding:6px 13px;border-radius:16px;font-size:13px;font-family:var(--f-body);font-weight:600;cursor:pointer;}
+  .btn:hover{background:var(--navy-dim);color:var(--panel);}
+  .btn.sel{background:var(--navy);color:var(--panel);border-color:var(--navy);}
+  .cta{background:var(--navy);color:var(--panel);border:none;border-radius:26px;padding:12px 22px;font-size:15px;font-weight:700;font-family:var(--f-body);cursor:pointer;box-shadow:0 4px 14px color-mix(in srgb, var(--navy) 40%, transparent);}
+  .cta:hover{background:var(--navy-dim);}
+  .cta.pulse{animation:ctaPulse 1.7s ease-in-out infinite;}
+  @keyframes ctaPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.035);}}
+  @media (prefers-reduced-motion: reduce){.cta.pulse{animation:none;}}
+
+  /* comparison table */
+  .tscroll{overflow-x:auto;}
+  table.cmp{width:100%;border-collapse:collapse;font-size:14px;}
+  table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;}
+  table.cmp thead th{font-weight:700;}
+  table.cmp th.z{color:var(--zcol);background:var(--zfill);} table.cmp th.t{color:var(--tcol);background:var(--tfill);}
+  table.cmp tbody th{font-weight:600;color:var(--muted);font-size:13px;}
+  table.cmp tr.key td,table.cmp tr.key th{background:var(--amber-fill);}
+
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin:14px 0 4px;}
+  .flow .box{flex:1 1 180px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);font-size:14px;min-width:0;}
+  .flow .box b{display:block;margin-bottom:3px;}
+  .flow .box.z{background:var(--zfill);} .flow .box.t{background:var(--tfill);}
+  .flow .arrow{align-self:center;font-family:var(--f-mono);color:var(--muted);}
+
+  .sort-list{display:flex;flex-direction:column;gap:10px;}
+  .sort-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--panel);}
+  .sort-card p{margin:0 0 8px;font-size:14.5px;}
+  .sort-card .btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .fb{font-size:13.5px;margin-top:8px;padding:8px 10px;border-radius:8px;}
+  .fb.ok{background:var(--good-fill);} .fb.no{background:var(--bad-fill);}
+  .score{font-family:var(--f-mono);font-weight:600;color:var(--navy);}
+
+  .verdict{display:inline-block;padding:4px 12px;border-radius:14px;font-weight:700;font-size:13.5px;}
+  .verdict.rej{background:var(--good-fill);color:var(--good);border:1px solid var(--good);}
+  .verdict.fail{background:var(--amber-fill);color:var(--amber);border:1px solid var(--amber);}
+  .sentence{font-size:15.5px;margin:14px 0 0;padding:14px 16px;border-left:4px solid var(--navy);background:var(--paper);border-radius:0 10px 10px 0;}
+
+  .not-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px;}
+  @media(min-width:680px){.not-grid{grid-template-columns:repeat(3,1fr);}}
+  .not-card{border:1px solid color-mix(in srgb, var(--bad) 40%, var(--line));background:var(--bad-fill);border-radius:10px;padding:12px;font-size:14px;}
+  .not-card b{display:block;color:var(--bad);margin-bottom:4px;}
+
+  /* error grid */
+  .egrid{display:grid;grid-template-columns:minmax(90px,.8fr) 1fr 1fr;gap:6px;font-size:14px;}
+  .egrid > div{border-radius:9px;padding:10px 12px;min-width:0;}
+  .egrid .hd{font-weight:700;color:var(--muted);font-size:12.5px;background:transparent;padding:4px 8px;align-self:end;}
+  .egrid .rh{font-weight:700;color:var(--muted);font-size:12.5px;background:var(--paper);border:1px solid var(--line);}
+  .egrid .okc{background:var(--good-fill);border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));}
+  .egrid .e1{background:var(--bad-fill);border:2px solid var(--bad);}
+  .egrid .e2{background:var(--amber-fill);border:2px solid var(--amber);}
+  .egrid b{display:block;}
+  .egrid small{color:var(--muted);display:block;margin-top:2px;}
+
+  .dots{display:grid;grid-template-columns:repeat(20,1fr);gap:4px;margin-top:12px;max-width:520px;}
+  .dot{aspect-ratio:1;border-radius:50%;background:var(--line);max-width:100%;}
+  .dot.fa{background:repeating-linear-gradient(45deg,var(--bad) 0 3px,var(--panel) 3px 5.5px);box-shadow:inset 0 0 0 2px var(--bad);}
+  .dot.miss{background:var(--panel);box-shadow:inset 0 0 0 4px var(--amber);}
+  .dot.hit{background:var(--good);}
+  .dot.cn{background:color-mix(in srgb, var(--muted) 45%, var(--panel));}
+  .dotkey{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:13px;color:var(--muted);}
+  .dotkey span{display:inline-flex;align-items:center;gap:6px;}
+  .dotkey .dot{width:16px;height:16px;flex:none;}
+  .sw.pat1{background:repeating-linear-gradient(45deg,var(--bad) 0 3px,var(--panel) 3px 5px);box-shadow:inset 0 0 0 1px var(--bad);}
+  .sw.pat2{background-color:var(--amber);background-image:radial-gradient(circle,var(--panel) 1.1px,transparent 1.4px);background-size:5px 5px;}
+  .swatch-in{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:5px;}
+
+  /* scenarios */
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .tab{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 14px;font-size:13.5px;color:var(--ink);cursor:pointer;font-family:var(--f-body);}
+  .tab .pill{font-family:var(--f-mono);font-size:11px;font-weight:600;padding:1px 6px;border-radius:8px;background:var(--paper);color:var(--muted);}
+  .tab[aria-selected="true"]{background:var(--navy);color:var(--panel);border-color:var(--navy);}
+  .tab .done{color:var(--good);font-weight:700;}
+  .story{padding:14px 16px;border-radius:10px;background:var(--tfill);border:1px solid color-mix(in srgb, var(--tcol) 30%, var(--line));font-size:15px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .chip{font-family:var(--f-mono);font-size:13.5px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 9px;}
+  .step{border-top:1px solid var(--line);padding:16px 0 4px;}
+  .step:first-of-type{border-top:none;}
+  .step-h{display:flex;align-items:center;gap:10px;font-weight:700;margin-bottom:8px;}
+  .step-n{font-family:var(--f-mono);font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 7px;color:var(--muted);}
+  .step.complete .step-n{background:var(--good-fill);color:var(--good);border-color:var(--good);}
+  .step p{margin:0 0 8px;font-size:14.5px;max-width:66ch;}
+  .formula{font-family:var(--f-mono);font-size:14px;background:var(--paper);border:1px dashed var(--line);border-radius:8px;padding:6px 10px;display:inline-block;margin:2px 0 8px;}
+  .answer-row{display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;}
+  .answer-row label{font-size:14px;min-width:0;}
+  .answer-row input{width:110px;}
+  .status{font-size:13px;font-weight:600;}
+  .status.ok{color:var(--good);} .status.bad{color:var(--bad);}
+  .hintline{font-size:13px;color:var(--muted);}
+  .linkbtn{background:none;border:none;color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px;padding:0;font-family:var(--f-body);}
+  .example-banner{margin-bottom:12px;padding:10px 14px;border-radius:9px;font-size:13.5px;background:var(--amber-fill);border:1px solid color-mix(in srgb, var(--amber) 40%, var(--line));}
+  .mode-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 6px;}
+
+  /* lookup tables */
+  .tbl-tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  table.lk{border-collapse:collapse;font-size:12.5px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;width:100%;}
+  table.lk th,table.lk td{border:1px solid var(--line);padding:4px 5px;text-align:center;cursor:pointer;}
+  table.lk caption{caption-side:top;text-align:left;font-family:var(--f-body);font-size:12px;color:var(--muted);padding:0 0 6px;}
+  table.lk th{font-family:var(--f-body);font-weight:700;color:var(--navy);background:var(--paper);position:sticky;top:0;z-index:1;}
+
+  table.lk td.rowh,table.lk th.rowh{font-weight:700;color:var(--navy);background:var(--paper);}
+  table.lk .xr{background:color-mix(in srgb, var(--amber-fill) 55%, transparent);}
+  table.lk .pin{background:var(--amber);color:var(--panel);font-weight:700;}
+  table.lk .hov{background:var(--tfill);}
+  .lk-read{min-height:42px;margin:8px 0;font-size:14px;padding:8px 12px;border-radius:9px;background:var(--paper);border:1px solid var(--line);}
+  .lk-scroll{overflow:auto;max-height:520px;border-radius:8px;}
+  .how{font-size:13.5px;color:var(--muted);margin:0 0 10px;}
+  .subhead{font-size:12px;font-weight:600;color:var(--muted);}
+
+  /* drawer */
+  .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--amber);color:var(--panel);border:none;border-radius:24px;padding:11px 18px;font-weight:700;font-size:14px;font-family:var(--f-body);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(600px,100vw);background:var(--panel);border-left:1px solid var(--line);z-index:30;transform:translateX(105%);transition:transform .25s ease;display:flex;flex-direction:column;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:-8px 0 30px rgba(0,0,0,.18);}
+  .drawer.open{transform:none;}
+  @media (prefers-reduced-motion: reduce){.drawer{transition:none;}}
+  .drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .drawer-head h3{font-family:var(--f-display);color:var(--navy);font-size:20px;margin:0;}
+  [hidden]{display:none!important;}
+  .drawer [data-pane]{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .drawer .lk-scroll{max-height:none;flex:1;min-height:0;overflow:auto;}
+  .drawer-body{display:flex;flex-direction:column;flex:1;min-height:0;}
+
+  .theme-toggle{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:14px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:12px;font-family:var(--f-body);color:var(--muted);cursor:pointer;z-index:15;}
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;}
+  ::selection{background:var(--amber-fill);}
+  /* tabs */
+  .tabbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:12;background:color-mix(in srgb, var(--paper) 94%, transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);margin:0 -18px 26px;padding:10px 18px;}
+  .tabbar-inner{display:flex;gap:8px;overflow-x:auto;scrollbar-width:thin;padding-right:90px;}
+  .tabbtn{flex:none;display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:5px 14px 5px 5px;font-size:13.5px;color:var(--ink);cursor:pointer;font-family:var(--f-body);font-weight:600;}
+  .tabbtn:hover{border-color:var(--navy-dim);}
+  .tabbtn[aria-selected="true"]{background:var(--navy);color:var(--panel);border-color:var(--navy);}
+  .tabbtn[aria-selected="true"] .secnum{background:var(--panel);color:var(--navy);}
+  .tabpane[hidden]{display:none!important;}
+  .next-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:30px;padding-top:18px;border-top:1px solid var(--line);}
+  .steps3{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;}
+  @media(min-width:680px){.steps3{grid-template-columns:repeat(3,1fr);}}
+  .steps3 .s{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 14px;font-size:14px;min-width:0;}
+  .steps3 .s .k{font-family:var(--f-mono);font-size:11.5px;font-weight:600;color:var(--navy);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .steps3 .s.on{border:2px solid var(--pv);background:var(--pv-fill);}
+  .decoder{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px;}
+  @media(min-width:680px){.decoder{grid-template-columns:1fr 1fr;}}
+  .decoder div{font-size:14px;padding:9px 12px;border-radius:9px;background:var(--paper);border:1px solid var(--line);min-width:0;}
+  .decoder b{color:var(--navy);}
+  .decoder .pv b{color:var(--pv);}
+  .stat.pv .v{color:var(--pv);}
+  .bandbtns{display:flex;flex-wrap:wrap;gap:8px;}
+  .formula-big{font-family:var(--f-mono);font-size:15px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:12px;line-height:1.7;overflow-x:auto;}
+  .formula-big .hl{color:var(--pv);font-weight:600;}
+  details.deeper{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);}
+  details.deeper > summary{cursor:pointer;padding:12px 16px;font-weight:600;color:var(--navy);}
+  details.deeper > div{padding:0 16px 16px;}
+  .jobs{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media(min-width:680px){.jobs{grid-template-columns:1fr 1fr;}}
+  .job{border-radius:12px;padding:14px 16px;border:1px solid var(--line);min-width:0;}
+  .job.j1{background:var(--zfill);} .job.j2{background:var(--tfill);}
+  .job .tag{font-family:var(--f-mono);font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .job.j1 .tag{color:var(--zcol);} .job.j2 .tag{color:var(--tcol);}
+  .job p{margin:0 0 6px;font-size:14.5px;}
+
+</style>
+<style>
+  /* Two-sample t-test additions. Group 1 = green circles, Group 2 = blue squares (shape + color). */
+  :root{ --g1:var(--zcol); --g1f:var(--zfill); --g2:var(--tcol); --g2f:var(--tfill); }
+  .fabs{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;gap:10px;}
+  .fabs .fab{position:static;}
+  .fab.calc{background:var(--navy);}
+  /* calculator */
+  .calc-pop{position:fixed;right:16px;bottom:calc(72px + env(safe-area-inset-bottom,0px));z-index:25;width:min(318px,calc(100vw - 32px));background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 34px rgba(0,0,0,.25);padding:12px;}
+  .calc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;}
+  .calc-head b{font-family:var(--f-display);color:var(--navy);font-size:17px;}
+  .calc-disp{width:100%;font-family:var(--f-mono);font-size:17px;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);}
+  .calc-res{font-family:var(--f-mono);font-size:22px;font-weight:600;color:var(--navy);text-align:right;min-height:32px;padding:4px 4px 0;overflow-x:auto;white-space:nowrap;}
+  .calc-res.err{color:var(--bad);font-size:13px;font-family:var(--f-body);font-weight:600;white-space:normal;}
+  .calc-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px;}
+  .calc-keys button{font-family:var(--f-mono);font-size:15px;padding:9px 0;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;}
+  .calc-keys button:hover{border-color:var(--navy-dim);}
+  .calc-keys button.op{color:var(--navy);font-weight:600;}
+  .calc-keys button.eq{background:var(--navy);color:var(--panel);border-color:var(--navy);}
+  .calc-keys button.fn{font-size:13px;}
+  .calc-hist{margin-top:8px;font-family:var(--f-mono);font-size:12px;color:var(--muted);max-height:86px;overflow:auto;}
+  .calc-hist div{padding:2px 4px;border-radius:5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px;}
+  .calc-hist div:hover{background:var(--paper);}
+  .calc-send{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);}
+
+  /* data tables */
+  table.data{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;}
+  table.data th,table.data td{border:1px solid var(--line);padding:5px 8px;text-align:center;}
+  table.data thead th{background:var(--paper);font-weight:700;font-size:13px;}
+  table.data th.g1{color:var(--g1);background:var(--g1f);} table.data th.g2{color:var(--g2);background:var(--g2f);}
+  table.data td.rn{color:var(--muted);font-family:var(--f-mono);font-size:12.5px;}
+  table.data input{width:84px;text-align:center;padding:5px 6px;font-size:14px;}
+  table.data tfoot td{font-weight:700;background:var(--paper);}
+  table.data td.num{font-family:var(--f-mono);}
+  table.data td.ok input{border-color:var(--good);background:var(--good-fill);}
+  table.data td.no input{border-color:var(--bad);background:var(--bad-fill);}
+  .data-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;}
+  .gtag{display:inline-flex;align-items:center;gap:6px;font-weight:700;}
+  .mk1,.mk2{display:inline-block;width:11px;height:11px;flex:none;}
+  .mk1{border-radius:50%;background:var(--g1);} .mk2{background:var(--g2);}
+  .ws{display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:760px){.ws.two{grid-template-columns:1fr 1fr;}}
+  .ws > *{min-width:0;}
+  .devhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+  .ans{width:120px;}
+  select.pick{font-family:var(--f-body);font-size:14px;max-width:100%;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+  .seg button{background:var(--panel);border:none;padding:6px 13px;font-size:13px;font-weight:600;font-family:var(--f-body);color:var(--ink);cursor:pointer;}
+  .seg button + button{border-left:1px solid var(--line);}
+  .seg button.sel{background:var(--navy);color:var(--panel);}
+  .reveal{border-top:1px solid var(--line);padding:16px 0 6px;}
+  .reveal .step-h .secnum{width:26px;height:26px;font-size:13px;}
+  .workline{font-family:var(--f-mono);font-size:14px;line-height:1.8;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:6px 0;overflow-x:auto;}
+  .workline b{color:var(--navy);}
+  .bigfrac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;}
+  .bigfrac span:first-child{border-bottom:1.5px solid currentColor;padding:0 6px 2px;}
+  .bigfrac span:last-child{padding:2px 6px 0;}
+  .formula-card{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-family:var(--f-mono);font-size:18px;color:var(--ink);padding:14px 16px;background:var(--paper);border:1px solid var(--line);border-radius:12px;}
+  .formula-card small{font-family:var(--f-body);font-size:13px;color:var(--muted);}
+  .flowq{display:flex;flex-direction:column;gap:10px;}
+  .fq{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel);}
+  .fq.dim{opacity:.45;}
+  .fq p{margin:0 0 8px;font-weight:600;}
+  .fq .btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .result-card{border-radius:12px;padding:14px 16px;border:2px solid var(--navy);background:var(--tfill);}
+  .result-card b{font-size:17px;color:var(--navy);display:block;margin-bottom:4px;}
+  .ladder{width:100%;border-collapse:collapse;font-size:14px;}
+  .ladder td,.ladder th{border:1px solid var(--line);padding:7px 10px;text-align:left;}
+  .ladder th{background:var(--paper);}
+  .ladder tr.on td{background:var(--pv-fill);font-weight:700;}
+  .ladder td:first-child{font-family:var(--f-mono);white-space:nowrap;}
+  textarea{font-family:var(--f-mono);font-size:14px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);width:100%;min-height:150px;resize:vertical;}
+  .lab-in{display:grid;grid-template-columns:1fr;gap:14px;}
+  @media(min-width:640px){.lab-in{grid-template-columns:1fr 1fr;}}
+  .lab-in > div{min-width:0;}
+  .lab-in input[type=text]{width:100%;font-family:var(--f-body);margin-bottom:6px;}
+  .parsed{font-size:12.5px;color:var(--muted);margin-top:4px;}
+  .warn{margin-top:10px;padding:10px 14px;border-radius:9px;font-size:14px;background:var(--bad-fill);border:1px solid color-mix(in srgb, var(--bad) 40%, var(--line));}
+  .okbox{margin-top:10px;padding:10px 14px;border-radius:9px;font-size:14px;background:var(--good-fill);border:1px solid color-mix(in srgb, var(--good) 40%, var(--line));}
+  .rtable{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;}
+  .rtable th,.rtable td{border:1px solid var(--line);padding:6px 9px;text-align:right;}
+  .rtable th:first-child,.rtable td:first-child{text-align:left;}
+  .rtable thead th{background:var(--paper);}
+  .rtable tr.rec td{background:var(--good-fill);font-weight:700;}
+  .pillnote{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--good);color:var(--panel);margin-left:6px;vertical-align:1px;}
+  .concl-builder{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px;line-height:2;}
+  .concl-builder select{font-family:var(--f-body);font-size:14px;}
+  .mini-plot{max-width:520px;}
+  .ans.wide{width:200px;max-width:100%;}
+  .exprnote{font-family:var(--f-mono);font-size:12px;color:var(--muted);}
+  .stuck{margin-top:10px;}
+  .btn.ghost{border-style:dashed;font-weight:600;}
+  .stuckbox{border-color:color-mix(in srgb, var(--amber) 45%, var(--line));background:var(--amber-fill);}
+  .step.peeked .step-n::after{content:" · answer shown";font-weight:600;}
+</style>
+
+<button class="theme-toggle" id="themeToggle" type="button">Dark mode</button>
+<div class="fabs">
+  <button class="fab calc" id="calcFab" type="button" aria-controls="calcPop" aria-expanded="false">Calculator</button>
+  <button class="fab" id="fab" type="button" aria-controls="drawer">t-table</button>
+</div>
+
+<div class="calc-pop" id="calcPop" hidden role="dialog" aria-label="Calculator">
+  <div class="calc-head"><b>Calculator</b><button class="btn" id="calcClose" type="button">Close</button></div>
+  <input class="calc-disp" id="calcIn" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-label="Type a calculation" placeholder="e.g. (8.2+9.1)/2">
+  <div class="calc-res" id="calcRes" aria-live="polite">0</div>
+  <div class="calc-keys" id="calcKeys">
+    <button type="button" data-k="(">(</button><button type="button" data-k=")">)</button><button type="button" class="fn" data-k="sqrt(">√</button><button type="button" class="fn" data-k="^2">x²</button><button type="button" class="fn" data-k="C">C</button>
+    <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" class="op" data-k="/">÷</button><button type="button" class="fn" data-k="BK">⌫</button>
+    <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" class="op" data-k="*">×</button><button type="button" class="fn" data-k="^">xʸ</button>
+    <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" class="op" data-k="-">−</button><button type="button" class="fn" data-k="ans">Ans</button>
+    <button type="button" data-k="0">0</button><button type="button" data-k=".">.</button><button type="button" class="fn" data-k="neg">(−)</button><button type="button" class="op" data-k="+">+</button><button type="button" class="eq" data-k="=">=</button>
+  </div>
+  <div class="calc-send"><button class="btn" id="calcSend" type="button" disabled>Put answer in box</button><span id="calcTarget">Click an answer box first.</span></div>
+  <div class="calc-hist" id="calcHist" aria-label="Recent calculations"></div>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="t-table" aria-hidden="true">
+  <div class="drawer-head">
+    <h3>t-table (critical values)</h3>
+    <button class="btn" id="drawerClose" type="button">Close</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="eyebrow">BIOL 200 · Comparing two means</p>
+    <h1>Is the difference real? The two-sample t-test</h1>
+    <p>Lizards in sun vs. shade, frogs in parks vs. wetlands, blackbirds before vs. after a hormone implant. Each time, two groups have different averages. The t-test tells you whether that gap is bigger than you'd expect from ordinary variation alone.</p>
+    <div class="howto">
+      <span class="tag">How to use this page</span>
+      <p>Work through the tabs in order. Each tab matches a section of your Canvas questions. Two buttons in the bottom corner stay with you everywhere: the <b>Calculator</b> (so you don't need a separate one) and the <b>t-table</b>. Answer boxes check themselves as you type.</p>
+    </div>
+  </header>
+
+  <nav class="tabbar" aria-label="Activity tabs">
+    <div class="tabbar-inner" role="tablist" id="tabbar">
+      <button class="tabbtn" role="tab" type="button" data-tab="which" id="tb-which"><span class="secnum small">1</span>Which t-test?</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="signal" id="tb-signal"><span class="secnum small">2</span>Signal vs. noise</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="worked" id="tb-worked"><span class="secnum small">3</span>Worked example: lizards</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="frogs" id="tb-frogs"><span class="secnum small">4</span>Your turn: frogs</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="welch" id="tb-welch"><span class="secnum small">5</span>Equal variance &amp; Welch</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="paired" id="tb-paired"><span class="secnum small">6</span>Paired: blackbirds</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="meaning" id="tb-meaning"><span class="secnum small">7</span>Significant vs. important</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="lab" id="tb-lab"><span class="secnum small">8</span>Data Lab</button>
+      <button class="tabbtn" role="tab" type="button" data-tab="tables" id="tb-tables"><span class="secnum small">9</span>t-table</button>
+    </div>
+  </nav>
+
+  <!-- ===================== TAB 1: WHICH ===================== -->
+  <section class="tabpane" id="tab-which" role="tabpanel" aria-labelledby="tb-which">
+    <h2><span class="secnum">1</span>Which t-test do I need?</h2>
+    <p class="lede">A t-test asks: "Are the means of two groups statistically different from each other?" Before you calculate anything, you have to know how your two groups are related.</p>
+    <div class="explain-grid two">
+      <div class="explain-card"><div class="tag">Independent samples t-test</div><p>Compares <b>two separate groups</b> of different individuals. Each individual appears in only one group.</p><p class="note">Lizards from grassland vs. lizards from forest. Treated cells vs. untreated cells.</p></div>
+      <div class="explain-card"><div class="tag">Paired samples t-test</div><p>Compares the <b>same individuals measured twice</b> (before/after, or under two conditions). You test the difference within each individual.</p><p class="note">The same 13 blackbirds before and after a testosterone implant.</p></div>
+    </div>
+
+    <div class="panel">
+      <h3>Quick sort: independent or paired? <span class="score" id="sortScore">0 / 6</span></h3>
+      <p class="note" style="margin-top:0;">Ask yourself: could I draw a line connecting each measurement in group 1 to one specific measurement in group 2?</p>
+      <div class="sort-list" id="sortList"></div>
+    </div>
+
+    <div class="panel">
+      <h3>Choose the right test, one question at a time</h3>
+      <p class="note" style="margin-top:0;">This follows the "2-Sample Comparison" flowchart from lecture. Answer the questions and the page tells you which test to run.</p>
+      <div class="flowq" id="flow"></div>
+      <div id="flowResult" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="panel">
+      <h3>The six steps of every t-test</h3>
+      <ol style="margin:6px 0 0;padding-left:20px;line-height:1.8;">
+        <li><b>State the hypotheses.</b> H₀: μ₁ = μ₂ (no difference). H<sub>A</sub>: μ₁ ≠ μ₂ (there is a difference).</li>
+        <li><b>Choose a significance level (α)</b>, usually 0.05.</li>
+        <li><b>Calculate the t-statistic.</b></li>
+        <li><b>Determine the p-value</b> (or compare t to the critical value from the table).</li>
+        <li><b>Compare p to α and draw a conclusion.</b> p ≤ α → reject H₀. p &gt; α → fail to reject H₀.</li>
+        <li><b>If p is close to α, check the effect size</b> to see how big the difference really is.</li>
+      </ol>
+    </div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Finish the quick sort. Which clue in the study description told you a design was paired?</li>
+      <li>Use the flowchart for the lecture's horned lizard study: 30 lizards killed by shrikes vs. 154 different living lizards, data look normal, Levene's test p = 0.15. Which test does it give you?</li>
+    </ol>
+    <div class="next-row"><span></span><button class="cta" type="button" data-go="signal">Next: Signal vs. noise →</button></div>
+  </section>
+
+  <!-- ===================== TAB 2: SIGNAL ===================== -->
+  <section class="tabpane" id="tab-signal" role="tabpanel" aria-labelledby="tb-signal" hidden>
+    <h2><span class="secnum">2</span>Signal vs. noise: what the t-statistic measures</h2>
+    <p class="lede">The t-statistic is a ratio. The top is the <b>signal</b>: how far apart the two means are. The bottom is the <b>noise</b>: how much those means would wobble by chance (the standard error). A big t means the gap is many standard errors wide.</p>
+    <div class="formula-card">
+      <span>t =</span>
+      <span class="bigfrac"><span>x̄₁ − x̄₂</span><span>√( s₁²/n₁ + s₂²/n₂ )</span></span>
+      <small>signal (difference in means)<br>÷ noise (standard error, SE)</small>
+    </div>
+
+    <div class="panel" style="margin-top:16px;">
+      <h3>Move the groups and watch t</h3>
+      <p class="note" style="margin-top:0;">Two groups of beetles, body length in mm. The curves show where individual beetles fall in each group.</p>
+      <div class="controls">
+        <div class="field"><label for="sgDiff">Difference between means (mm)</label><div class="slider-row"><input type="range" id="sgDiff" min="0" max="4" step="0.1" value="1.0"><output id="sgDiffO" class="num">1.0</output></div></div>
+        <div class="field"><label for="sgSD">Spread within each group (s, mm)</label><div class="slider-row"><input type="range" id="sgSD" min="0.5" max="4" step="0.1" value="2.0"><output id="sgSDO" class="num">2.0</output></div></div>
+        <div class="field"><label for="sgN">Beetles per group (n)</label><div class="slider-row"><input type="range" id="sgN" min="3" max="60" step="1" value="8"><output id="sgNO" class="num">8</output></div></div>
+      </div>
+      <svg id="sgCurves" viewBox="0 0 680 200" role="img" aria-label="Two overlapping group distributions"></svg>
+      <div class="legend"><span><span class="mk1"></span>Group 1 (moves with the slider)</span><span><span class="mk2"></span>Group 2 (x̄₂ = 10 mm)</span></div>
+      <div class="formula-big" id="sgCalc"></div>
+      <svg id="sgT" viewBox="0 0 680 230" role="img" aria-label="t-distribution with the observed t"></svg>
+      <div class="stat-row">
+        <div class="stat"><span class="k">t-statistic</span><span class="v" id="sgTv">–</span></div>
+        <div class="stat"><span class="k">df = n₁ + n₂ − 2</span><span class="v" id="sgDf">–</span></div>
+        <div class="stat amber"><span class="k">t-critical (α = 0.05, two-tailed)</span><span class="v" id="sgCrit">–</span></div>
+        <div class="stat pv"><span class="k">p-value</span><span class="v" id="sgP">–</span></div>
+      </div>
+      <div class="sentence" id="sgSent"></div>
+    </div>
+    <div class="decoder">
+      <div><b>Bigger difference → bigger t.</b> The signal grows, so the means are more standard errors apart.</div>
+      <div><b>More spread → smaller t.</b> Noisy data make the same gap less convincing.</div>
+      <div><b>Bigger n → bigger t.</b> Averages from big samples wobble less, so the SE shrinks.</div>
+      <div class="pv"><b>Shaded red tails = rejection region.</b> If t lands in the red, p &lt; α and you reject H₀.</div>
+    </div>
+    <div class="callout"><b>Lecture example: horned lizards.</b> Spike length of lizards killed by shrikes (x̄ = 21.99 mm, s = 2.71, n = 30) vs. living lizards (x̄ = 24.28 mm, s = 2.63, n = 154). The difference of 2.29 mm works out to about <span class="big">4.3 standard errors</span>, far into the rejection region, so p &lt; 0.001 and we reject H₀. Significant, but is it important? That's Tab 7.</div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Set difference = 1.0 mm, spread = 2.0 mm, n = 8. Is the result significant? Now raise n to 40 without changing anything else. What happened to t and p?</li>
+      <li>Put n back to 8. Find a spread that makes a 2.0 mm difference significant. What does this tell you about noisy data?</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="which">← Back: Which t-test?</button><button class="cta" type="button" data-go="worked">Next: Worked example →</button></div>
+  </section>
+
+  <!-- ===================== TAB 3: WORKED ===================== -->
+  <section class="tabpane" id="tab-worked" role="tabpanel" aria-labelledby="tb-worked" hidden>
+    <h2><span class="secnum">3</span>Worked example: lizard tail lengths</h2>
+    <div class="story">A field biologist studies whether habitat affects tail length in western fence lizards (<i>Sceloporus occidentalis</i>). She measures tail length (cm) of 8 lizards from <b>sunny grassland</b> and 8 different lizards from <b>shaded forest</b>. Is there a significant difference at α = 0.05?</div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="ws two">
+        <div><h3>Data</h3><div class="tscroll" id="wkData"></div></div>
+        <div>
+          <h3>Hypotheses</h3>
+          <p style="margin:0 0 6px;"><b>H₀:</b> There is no significant difference in tail length between lizards in sunny grassland and shaded forest.</p>
+          <p style="margin:0 0 6px;"><b>H<sub>A</sub>:</b> There is a significant difference in tail length between lizards in the two habitats.</p>
+          <p style="margin:0;"><b>α = 0.05</b>, two-tailed</p>
+        </div>
+      </div>
+      <div class="mode-bar"><button class="cta" id="wkNext" type="button">Show Step 1</button><button class="btn" id="wkAll" type="button">Show all steps</button><button class="btn" id="wkReset" type="button">Start over</button><span class="note" id="wkCount" style="margin:0;"></span></div>
+      <div id="wkSteps"></div>
+    </div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Before opening Step 2, look at the data. Which habitat looks more spread out? Check your guess against the two variances.</li>
+      <li>Open Step 5 and click the highlighted cell in the t-table. Why do we use the df = 14 row?</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="signal">← Back: Signal vs. noise</button><button class="cta" type="button" data-go="frogs">Next: Your turn →</button></div>
+  </section>
+
+  <!-- ===================== TAB 4: FROGS ===================== -->
+  <section class="tabpane" id="tab-frogs" role="tabpanel" aria-labelledby="tb-frogs" hidden>
+    <h2><span class="secnum">4</span>Your turn: frog body mass</h2>
+    <div class="story" id="frStory">A herpetologist suspects that Pacific tree frogs (<i>Pseudacris regilla</i>) in <b>urban parks</b> weigh less than frogs in <b>rural wetlands</b>, possibly because of food availability and stress. She weighs 8 frogs (g) from each habitat. Test whether body mass differs between the two populations at α = 0.05.</div>
+    <div class="example-banner" style="margin-top:12px;">Work each step yourself. You can type a plain number <b>or a whole calculation</b> into any answer box, like <code>sqrt(0.3827/8 + 0.2855/8)</code>, then press Enter. The <b>Calculator</b> button works too. Boxes turn green when you're right. If you get stuck, each step has a <b>Show the answer</b> button. If you change the data, every answer is checked against <i>your</i> numbers.</div>
+
+    <div class="panel">
+      <h3>The data</h3>
+      <div class="tscroll"><table class="data" id="frTable"></table></div>
+      <div class="data-tools">
+        <button class="btn" type="button" id="frAdd">+ Add a row</button>
+        <button class="btn" type="button" id="frReset">Reset to frog data</button>
+        <button class="btn" type="button" id="frClear">Clear and enter my own data</button>
+      </div>
+      <div class="controls" style="margin-top:12px;margin-bottom:0;">
+        <div class="field"><label for="frN1">Group 1 name</label><input type="text" id="frN1" value="Urban park"></div>
+        <div class="field"><label for="frN2">Group 2 name</label><input type="text" id="frN2" value="Rural wetland"></div>
+        <div class="field"><label for="frVar">What was measured?</label><input type="text" id="frVar" value="body mass"></div>
+      </div>
+      <div class="note" id="frDataNote"></div>
+    </div>
+
+    <div class="panel" id="frWork"></div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Complete Steps 1–7. Use the "Fill in the deviations for me" button only after you've tried at least two rows by hand.</li>
+      <li>Your t is negative. Does that mean anything biologically? (Hint: what happens to the sign if you swap which group is Group 1?)</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="worked">← Back: Worked example</button><button class="cta" type="button" data-go="welch">Next: Equal variance →</button></div>
+  </section>
+
+  <!-- ===================== TAB 5: WELCH ===================== -->
+  <section class="tabpane" id="tab-welch" role="tabpanel" aria-labelledby="tb-welch" hidden>
+    <h2><span class="secnum">5</span>Equal variance? Student's vs. Welch's t-test</h2>
+    <p class="lede">The independent t-test has two assumptions to check first: each group's data should be roughly <b>normal</b>, and the two groups should have similar spread (<b>homogeneity of variance</b>, "similarity in variation in a dataset").</p>
+    <div class="explain-grid two">
+      <div class="explain-card t"><div class="tag">Student's t-test (pooled, equal variance)</div><p>Assumes both groups have the same variance. df = n₁ + n₂ − 2. This is the test in the worked example and the frog problem.</p></div>
+      <div class="explain-card z"><div class="tag">Welch's t-test (unequal variance)</div><p>Does not assume equal variances. It adjusts the df downward when spreads differ, which makes it more cautious and more reliable.</p></div>
+    </div>
+    <div class="panel">
+      <h3>Pull the spreads apart</h3>
+      <p class="note" style="margin-top:0;">Both groups have the same mean difference (8 units). Change their spreads and sizes and compare the two tests.</p>
+      <div class="controls">
+        <div class="field"><label for="wSD1">Group 1 spread (s₁)</label><div class="slider-row"><input type="range" id="wSD1" min="2" max="25" step="0.5" value="5"><output id="wSD1o" class="num">5</output></div></div>
+        <div class="field"><label for="wSD2">Group 2 spread (s₂)</label><div class="slider-row"><input type="range" id="wSD2" min="2" max="25" step="0.5" value="15"><output id="wSD2o" class="num">15</output></div></div>
+        <div class="field"><label for="wN1">n₁</label><div class="slider-row"><input type="range" id="wN1" min="4" max="60" step="1" value="30"><output id="wN1o" class="num">30</output></div></div>
+        <div class="field"><label for="wN2">n₂</label><div class="slider-row"><input type="range" id="wN2" min="4" max="60" step="1" value="8"><output id="wN2o" class="num">8</output></div></div>
+      </div>
+      <svg id="wCurves" viewBox="0 0 680 210" role="img" aria-label="Two group distributions with different spreads"></svg>
+      <div class="legend"><span><span class="mk1"></span>Group 1 (mean 100)</span><span><span class="mk2"></span>Group 2 (mean 108)</span></div>
+      <div class="stat-row">
+        <div class="stat"><span class="k">Variance ratio (larger ÷ smaller)</span><span class="v" id="wRatio">–</span></div>
+      </div>
+      <div class="tscroll" style="margin-top:12px;"><table class="rtable" id="wTable"></table></div>
+      <div class="sentence" id="wSent"></div>
+    </div>
+    <div class="panel">
+      <h3>How do you know? Levene's test</h3>
+      <p style="margin-top:0;">Levene's test checks whether the groups have the same variance in the population. It has its own hypotheses:</p>
+      <div class="decoder">
+        <div><b>H₀:</b> the groups have equal variances.</div>
+        <div><b>H₁:</b> the groups have different variances.</div>
+        <div><b>Levene p &gt; 0.05:</b> no evidence the variances differ. Use <b>Student's</b> t-test.</div>
+        <div><b>Levene p ≤ 0.05:</b> the variances differ. Use <b>Welch's</b> t-test.</div>
+      </div>
+      <p class="note">In jamovi: Independent Samples T-Test → tick <b>Homogeneity test</b> and <b>Normality test</b> under Assumption Checks. If Levene's test is significant, tick <b>Welch's</b> under Tests. The <b>Data Lab</b> tab runs Levene's test on any data you enter.</p>
+    </div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Set both spreads to 10 and both n to 30. How different are the Student's and Welch's results?</li>
+      <li>Now set s₁ = 5, s₂ = 15, n₁ = 30, n₂ = 8. What happens to Welch's df? Do the two tests reach the same decision?</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="frogs">← Back: Your turn</button><button class="cta" type="button" data-go="paired">Next: Paired t-test →</button></div>
+  </section>
+
+  <!-- ===================== TAB 6: PAIRED ===================== -->
+  <section class="tabpane" id="tab-paired" role="tabpanel" aria-labelledby="tb-paired" hidden>
+    <h2><span class="secnum">6</span>Paired t-test: red-winged blackbirds</h2>
+    <div class="story">High testosterone can help attract mates, but too much may weaken immunity. Researchers measured antibody production (ln[mOD/min]) in <b>13 male red-winged blackbirds</b> before and after a testosterone implant. Did antibody production change? α = 0.05, two-tailed.</div>
+    <div class="panel" style="margin-top:14px;">
+      <div class="ws two">
+        <div><h3>Data and differences</h3><div class="tscroll"><table class="data" id="pdTable"></table></div>
+          <div class="data-tools"><button class="btn" type="button" id="pdFill">Fill in the differences for me</button></div></div>
+        <div><h3>Each line is one bird</h3><svg id="pdSlope" viewBox="0 0 320 300" role="img" aria-label="Before and after values for each bird, connected by lines"></svg>
+          <p class="note">There's a lot of variation <i>between</i> birds, but each bird changes only a little. A paired test focuses on the change within each bird and ignores the bird-to-bird differences.</p></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="formula-card">
+        <span>t =</span><span class="bigfrac"><span>d̄ − 0</span><span>s<sub>d</sub> / √n</span></span>
+        <small>d̄ = mean of the differences, s<sub>d</sub> = SD of the differences,<br>n = number of pairs, df = n − 1</small>
+      </div>
+      <div id="pdSteps" style="margin-top:6px;"></div>
+    </div>
+    <div class="panel">
+      <h3>Why pairing matters</h3>
+      <p class="note" style="margin-top:0;">What if the researchers had (wrongly) treated "before" and "after" as two separate groups of birds?</p>
+      <div class="mode-bar"><button class="btn" type="button" id="pdCompare">Compare paired vs. independent analysis</button></div>
+      <div id="pdCompareOut"></div>
+    </div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Complete the paired steps. Is the change in antibody production significant?</li>
+      <li>Press "Compare paired vs. independent analysis." Which analysis gives the smaller p-value, and why?</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="welch">← Back: Equal variance</button><button class="cta" type="button" data-go="meaning">Next: Significant vs. important →</button></div>
+  </section>
+
+  <!-- ===================== TAB 7: MEANING ===================== -->
+  <section class="tabpane" id="tab-meaning" role="tabpanel" aria-labelledby="tb-meaning" hidden>
+    <h2><span class="secnum">7</span>Statistically significant vs. biologically important</h2>
+    <div class="explain-grid two">
+      <div class="explain-card"><div class="tag">Statistical significance</div><p>The difference is <b>unlikely to be due to random variation</b>. That's what p tells you.</p></div>
+      <div class="explain-card"><div class="tag">Biological significance</div><p>The <b>effect size is meaningful</b> for the system you study. A 0.1 g difference in a 14 g frog may be real but not matter.</p></div>
+    </div>
+    <div class="panel">
+      <h3>Same tiny difference, more and more data</h3>
+      <p class="note" style="margin-top:0;">Two groups of frogs truly differ by a small amount. Watch p and the effect size as you collect more frogs.</p>
+      <div class="controls">
+        <div class="field"><label for="mDiff">Difference in means (g)</label><div class="slider-row"><input type="range" id="mDiff" min="0.05" max="2" step="0.05" value="0.15"><output id="mDiffO" class="num">0.15</output></div></div>
+        <div class="field"><label for="mN">Frogs per group (n)</label><div class="slider-row"><input type="range" id="mN" min="5" max="1000" step="5" value="20"><output id="mNO" class="num">20</output></div></div>
+      </div>
+      <p class="note">Spread within each group is fixed at s = 0.6 g.</p>
+      <div class="stat-row">
+        <div class="stat"><span class="k">t</span><span class="v" id="mT">–</span></div>
+        <div class="stat pv"><span class="k">p-value</span><span class="v" id="mP">–</span></div>
+        <div class="stat amber"><span class="k">Effect size (Cohen's d)</span><span class="v" id="mD">–</span></div>
+        <div class="stat"><span class="k">Size of effect</span><span class="v" id="mDl" style="font-size:15px;padding-top:3px;">–</span></div>
+      </div>
+      <div class="sentence" id="mSent"></div>
+      <div class="formula-big">Cohen's d = (x̄₁ − x̄₂) / s<sub>pooled</sub> &nbsp;·&nbsp; s<sub>pooled</sub> = √( (s₁² + s₂²) / 2 ) for equal n<br>Rough guide: d ≈ 0.2 small · 0.5 medium · 0.8 or more large</div>
+    </div>
+    <div class="panel">
+      <h3>How strong is the evidence?</h3>
+      <p class="note" style="margin-top:0;">p isn't just "yes or no." This scale from lecture describes the strength of evidence against H₀. The row for the p-value above is highlighted.</p>
+      <div class="tscroll"><table class="ladder" id="ladder">
+        <thead><tr><th>Value of p</th><th>Inference</th></tr></thead>
+        <tbody>
+          <tr data-lo="0.10" data-hi="2"><td>p &gt; 0.10</td><td>No evidence against the null hypothesis</td></tr>
+          <tr data-lo="0.05" data-hi="0.10"><td>0.05 &lt; p ≤ 0.10</td><td>Weak evidence against the null hypothesis</td></tr>
+          <tr data-lo="0.01" data-hi="0.05"><td>0.01 &lt; p ≤ 0.05</td><td>Moderate evidence against the null hypothesis</td></tr>
+          <tr data-lo="0.001" data-hi="0.01"><td>0.001 &lt; p ≤ 0.01</td><td>Strong evidence against the null hypothesis</td></tr>
+          <tr data-lo="-1" data-hi="0.001"><td>p ≤ 0.001</td><td>Very strong evidence against the null hypothesis</td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="panel">
+      <h3>Effect sizes from this activity</h3>
+      <div class="tscroll"><table class="rtable" id="esTable"></table></div>
+      <p class="note">Always report both: "Urban frogs weighed significantly less (t₁₄ = −6.23, p &lt; 0.001), a large effect (d = 3.1)."</p>
+    </div>
+    <p class="tryit-h">Try this</p>
+    <ol class="tryit">
+      <li>Keep the difference at 0.15 g. Slide n up until p drops below 0.05. How many frogs per group did it take, and what is Cohen's d there?</li>
+      <li>Would you tell a conservation manager that urban frogs are "much smaller" based on that result? Why or why not?</li>
+    </ol>
+    <div class="next-row"><button class="btn" type="button" data-go="paired">← Back: Paired t-test</button><button class="cta" type="button" data-go="lab">Next: Data Lab →</button></div>
+  </section>
+
+  <!-- ===================== TAB 8: LAB ===================== -->
+  <section class="tabpane" id="tab-lab" role="tabpanel" aria-labelledby="tb-lab" hidden>
+    <h2><span class="secnum">8</span>Data Lab: run a t-test on any data</h2>
+    <p class="lede">Type or paste two columns of numbers (from Excel, Google Sheets or your notes) and the page does every step, shows the working, and checks the assumptions. Use it to check your hand calculations or to analyze your own data.</p>
+    <div class="panel">
+      <div class="mode-bar" style="margin-top:0;">
+        <span class="subhead">Load an example:</span>
+        <button class="btn" type="button" data-ex="lizard">Lizard tails</button>
+        <button class="btn" type="button" data-ex="frog">Frog mass</button>
+        <button class="btn" type="button" data-ex="bird">Blackbirds (paired)</button>
+        <button class="btn" type="button" data-ex="clear">Clear</button>
+      </div>
+      <div class="lab-in" style="margin-top:10px;">
+        <div><label class="subhead" for="labN1">Group 1 name</label><input type="text" id="labN1" value="Sunny grassland"><label class="subhead" for="labX1">Group 1 values (one per line, or separated by commas/spaces)</label><textarea id="labX1"></textarea><div class="parsed" id="labP1"></div></div>
+        <div><label class="subhead" for="labN2">Group 2 name</label><input type="text" id="labN2" value="Shaded forest"><label class="subhead" for="labX2">Group 2 values</label><textarea id="labX2"></textarea><div class="parsed" id="labP2"></div></div>
+      </div>
+      <div class="controls" style="margin-top:14px;">
+        <div class="field" style="flex:0 1 auto;"><span class="flabel">Design</span><div class="seg" id="labDesign"><button type="button" data-v="ind" class="sel">Independent</button><button type="button" data-v="pair">Paired</button></div></div>
+        <div class="field" style="flex:0 1 260px;"><label for="labTail">Alternative hypothesis (H<sub>A</sub>)</label><select id="labTail"><option value="2">μ₁ ≠ μ₂ (two-tailed)</option><option value="g">μ₁ &gt; μ₂ (one-tailed)</option><option value="l">μ₁ &lt; μ₂ (one-tailed)</option></select></div>
+        <div class="field" style="flex:0 1 120px;"><label for="labA">α</label><select id="labA"><option>0.01</option><option selected>0.05</option><option>0.10</option></select></div>
+      </div>
+    </div>
+    <div id="labOut"></div>
+    <div class="next-row"><button class="btn" type="button" data-go="meaning">← Back: Significant vs. important</button><button class="cta" type="button" data-go="tables">Next: t-table →</button></div>
+  </section>
+
+  <!-- ===================== TAB 9: TABLES ===================== -->
+  <section class="tabpane" id="tab-tables" role="tabpanel" aria-labelledby="tb-tables" hidden>
+    <h2><span class="secnum">9</span>The t-table</h2>
+    <p class="lede">Critical values of the t-distribution. Click any cell to pin it; the page reads it back to you in words.</p>
+    <div class="panel" id="inlineTables"></div>
+    <div class="next-row"><button class="btn" type="button" data-go="lab">← Back: Data Lab</button><span></span></div>
+  </section>
+
+  <footer>BIOL 200 · Comparing two means · companion to the Two-Sample t-Test lecture and the Student's t-Test activity</footer>
+</div>
+<script>
+(function(){
+"use strict";
+
+/* ---------- theme ---------- */
+var root=document.documentElement, themeBtn=document.getElementById("themeToggle");
+function isDark(){return root.getAttribute("data-theme")==="dark";}
+function themeLabel(){themeBtn.textContent=isDark()?"Light mode":"Dark mode";}
+themeBtn.addEventListener("click",function(){root.setAttribute("data-theme",isDark()?"light":"dark");themeLabel();});
+themeLabel();
+
+/* ---------- math ---------- */
+function npdf(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);}
+function lgam(x){
+  var g=7,p=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5) return Math.log(Math.PI/Math.sin(Math.PI*x))-lgam(1-x);
+  x-=1; var a=p[0],t=x+g+0.5; for(var i=1;i<g+2;i++) a+=p[i]/(x+i);
+  return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);
+}
+function betacf(a,b,x){
+  var MAXIT=300,EPS=3e-14,FPMIN=1e-300,qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN) d=FPMIN; d=1/d; var h=d;
+  for(var m=1;m<=MAXIT;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d; if(Math.abs(d)<FPMIN) d=FPMIN; c=1+aa/c; if(Math.abs(c)<FPMIN) c=FPMIN; d=1/d; h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2)); d=1+aa*d; if(Math.abs(d)<FPMIN) d=FPMIN; c=1+aa/c; if(Math.abs(c)<FPMIN) c=FPMIN; d=1/d;
+    var del=d*c; h*=del; if(Math.abs(del-1)<EPS) break;}
+  return h;
+}
+function ibeta(x,a,b){
+  if(x<=0) return 0; if(x>=1) return 1;
+  var bt=Math.exp(lgam(a+b)-lgam(a)-lgam(b)+a*Math.log(x)+b*Math.log(1-x));
+  if(x<(a+1)/(a+b+2)) return bt*betacf(a,b,x)/a;
+  return 1-bt*betacf(b,a,1-x)/b;
+}
+function p2(t,df){ if(!isFinite(t)) return 0; return ibeta(df/(df+t*t),df/2,0.5); } // two-tailed
+function pUpper(t,df){ var q=p2(t,df)/2; return t>=0?q:1-q; } // P(T > t)
+function tpdf(t,v){var C=Math.exp(lgam((v+1)/2)-lgam(v/2))/Math.sqrt(v*Math.PI);return C*Math.pow(1+t*t/v,-(v+1)/2);}
+function tcrit(alpha2,df){var lo=0,hi=400;for(var k=0;k<80;k++){var m=(lo+hi)/2;if(p2(m,df)>alpha2) lo=m; else hi=m;}return (lo+hi)/2;}
+function fmtP(p){ if(p<0.0001) return "< 0.0001"; if(p<0.001) return p.toFixed(4); return p.toFixed(3); }
+function f(x,d){ if(!isFinite(x)) return "–"; return (+x).toFixed(d===undefined?4:d); }
+function sgn(x,d){ var s=f(x,d); return s.replace("-","−"); }
+function sum(a){return a.reduce(function(s,v){return s+v;},0);}
+function mean(a){return sum(a)/a.length;}
+function ss(a){var m=mean(a);return sum(a.map(function(v){return (v-m)*(v-m);}));}
+function vari(a){return ss(a)/(a.length-1);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+
+/* ---------- t table ---------- */
+var T_ALPHAS=[0.20,0.10,0.05,0.02,0.01];
+var T_ROWS=[[1,3.078,6.314,12.706,31.821,63.657],[2,1.886,2.920,4.303,6.965,9.925],[3,1.638,2.353,3.182,4.541,5.841],[4,1.533,2.132,2.776,3.747,4.604],[5,1.476,2.015,2.571,3.365,4.032],[6,1.440,1.943,2.447,3.143,3.707],[7,1.415,1.895,2.365,2.998,3.499],[8,1.397,1.860,2.306,2.896,3.355],[9,1.383,1.833,2.262,2.821,3.250],[10,1.372,1.812,2.228,2.764,3.169],[11,1.363,1.796,2.201,2.718,3.106],[12,1.356,1.782,2.179,2.681,3.055],[13,1.350,1.771,2.160,2.650,3.012],[14,1.345,1.761,2.145,2.624,2.977],[15,1.341,1.753,2.131,2.602,2.947],[16,1.337,1.746,2.120,2.583,2.921],[17,1.333,1.740,2.110,2.567,2.898],[18,1.330,1.734,2.101,2.552,2.878],[19,1.328,1.729,2.093,2.539,2.861],[20,1.325,1.725,2.086,2.528,2.845],[21,1.323,1.721,2.080,2.518,2.831],[22,1.321,1.717,2.074,2.508,2.819],[23,1.319,1.714,2.069,2.500,2.807],[24,1.318,1.711,2.064,2.492,2.797],[25,1.316,1.708,2.060,2.485,2.787],[26,1.315,1.706,2.056,2.479,2.779],[27,1.314,1.703,2.052,2.473,2.771],[28,1.313,1.701,2.048,2.467,2.763],[29,1.311,1.699,2.045,2.462,2.756],[30,1.310,1.697,2.042,2.457,2.750],[40,1.303,1.684,2.021,2.423,2.704],[60,1.296,1.671,2.000,2.390,2.660],[120,1.289,1.658,1.980,2.358,2.617],[Infinity,1.282,1.645,1.960,2.326,2.576]];
+function tableRow(df){ var r=0; for(var i=0;i<T_ROWS.length;i++){ if(T_ROWS[i][0]<=df) r=i; } return r; }
+function tableCrit(df,alpha2){ var c=T_ALPHAS.indexOf(alpha2); if(c<0) c=2; return T_ROWS[tableRow(df)][c+1]; }
+
+/* ---------- SVG helper ---------- */
+var NS="http://www.w3.org/2000/svg";
+function mk(tag,a){var e=document.createElementNS(NS,tag);for(var k in a) e.setAttribute(k,a[k]);return e;}
+function Plot(svg,W,H,m,xmin,xmax,ymax){
+  var P={svg:svg,xmin:xmin,xmax:xmax};
+  P.x=function(v){return m.l+(v-xmin)/(xmax-xmin)*(W-m.l-m.r);};
+  P.y=function(v){return m.t+(1-v/ymax)*(H-m.t-m.b);};
+  P.clear=function(){while(svg.firstChild) svg.removeChild(svg.firstChild);};
+  P.add=function(tag,a){var e=mk(tag,a);svg.appendChild(e);return e;};
+  P.text=function(x,y,s,a){a=a||{};a.x=x;a.y=y;if(!a.fill)a.fill="var(--muted)";if(!a["font-size"])a["font-size"]="11";if(!a["font-family"])a["font-family"]="IBM Plex Mono, monospace";var e=P.add("text",a);e.textContent=s;return e;};
+  P.axis=function(ticks,fmt){
+    P.add("line",{x1:P.x(xmin),x2:P.x(xmax),y1:P.y(0),y2:P.y(0),stroke:"var(--muted)","stroke-width":1});
+    ticks.forEach(function(t){P.add("line",{x1:P.x(t),x2:P.x(t),y1:P.y(0),y2:P.y(0)+5,stroke:"var(--muted)","stroke-width":1});P.text(P.x(t),P.y(0)+18,fmt?fmt(t):String(t),{"text-anchor":"middle"});});
+  };
+  P.curve=function(fn,a,steps){steps=steps||200;var d="";for(var i=0;i<=steps;i++){var xv=xmin+(xmax-xmin)*i/steps;var yv=Math.min(fn(xv),ymax*1.05);d+=(i?"L":"M")+P.x(xv).toFixed(1)+","+P.y(yv).toFixed(1);}a.d=d;if(!a.fill)a.fill="none";return P.add("path",a);};
+  P.area=function(fn,a0,b0,a,steps){a0=Math.max(a0,xmin);b0=Math.min(b0,xmax);if(b0<=a0) return null;steps=steps||80;var d="M"+P.x(a0).toFixed(1)+","+P.y(0).toFixed(1);for(var i=0;i<=steps;i++){var xv=a0+(b0-a0)*i/steps;d+=" L"+P.x(xv).toFixed(1)+","+P.y(Math.min(fn(xv),ymax*1.05)).toFixed(1);}d+=" L"+P.x(b0).toFixed(1)+","+P.y(0).toFixed(1)+" Z";a.d=d;return P.add("path",a);};
+  return P;
+}
+/* t-distribution figure: curve, red rejection tails, observed t marker */
+function drawTdist(svg,df,t,crit,tail,label){
+  var W=680,H=230, lim=Math.max(4.5,Math.min(8,Math.abs(t)+1));
+  var P=Plot(svg,W,H,{l:20,r:20,t:30,b:44},-lim,lim,0.43); P.clear();
+  var fn=function(x){return tpdf(x,df);};
+  P.area(fn,-lim,lim,{fill:"var(--tfill)",opacity:0.9},160);
+  if(tail==="2"||tail==="l") P.area(fn,-lim,-crit,{fill:"var(--bad)",opacity:0.75});
+  if(tail==="2"||tail==="g") P.area(fn,crit,lim,{fill:"var(--bad)",opacity:0.75});
+  P.curve(fn,{stroke:"var(--ink)","stroke-width":2},240);
+  var ticks=[]; for(var k=-Math.floor(lim);k<=Math.floor(lim);k++) ticks.push(k);
+  P.axis(ticks,function(v){return v===0?"0":(v>0?"+"+v:"−"+Math.abs(v));});
+  P.text(P.x(0),P.y(0)+36,"t (standard errors between the means)",{"text-anchor":"middle","font-size":"10.5"});
+  var cs=(tail==="2")?[-crit,crit]:(tail==="g"?[crit]:[-crit]);
+  cs.forEach(function(c){P.add("line",{x1:P.x(c),x2:P.x(c),y1:P.y(0),y2:P.y(0.38),stroke:"var(--amber)","stroke-width":2,"stroke-dasharray":"5,3"});
+    P.text(P.x(c),P.y(0.395),"t-crit "+(c<0?"−":"+")+Math.abs(c).toFixed(3),{"text-anchor":"middle",fill:"var(--amber)","font-weight":"600"});});
+  if(isFinite(t)){
+    var tx=Math.max(-lim,Math.min(lim,t)), off=Math.abs(t)>lim;
+    P.add("line",{x1:P.x(tx),x2:P.x(tx),y1:P.y(0),y2:P.y(0.30),stroke:"var(--navy)","stroke-width":2.5});
+    P.add("circle",{cx:P.x(tx),cy:P.y(Math.min(fn(tx),0.3)),r:6,fill:"var(--navy)",stroke:"var(--panel)","stroke-width":2});
+    var anchor=tx>=0?(tx>lim*0.55?"end":"start"):(tx<-lim*0.55?"start":"end"), dx=(anchor==="start"?8:-8);
+    P.text(P.x(tx)+dx,P.y(0.27),(label||"your t")+" = "+sgn(t,2)+(off?" (off the chart)":""),{"text-anchor":anchor,fill:"var(--navy)","font-weight":"700","font-size":"12",stroke:"var(--panel)","stroke-width":"4","paint-order":"stroke"});
+  }
+}
+
+/* ---------- tabs ---------- */
+var TABS=["which","signal","worked","frogs","welch","paired","meaning","lab","tables"];
+function showTab(id,scroll){
+  if(TABS.indexOf(id)<0) id="which";
+  TABS.forEach(function(t){document.getElementById("tab-"+t).hidden=(t!==id); var b=document.getElementById("tb-"+t); b.setAttribute("aria-selected",t===id?"true":"false"); b.tabIndex=t===id?0:-1;});
+  var btn=document.getElementById("tb-"+id); if(btn.scrollIntoView) btn.scrollIntoView({block:"nearest",inline:"center"});
+  try{ if(history.replaceState) history.replaceState(null,"","#"+id); }catch(e){}
+  if(scroll){ var bar=document.querySelector(".tabbar"); window.scrollTo({top:Math.max(0,bar.offsetTop-2),behavior:"auto"}); }
+}
+document.querySelectorAll(".tabbtn").forEach(function(b){b.addEventListener("click",function(){showTab(b.getAttribute("data-tab"),false);});});
+document.getElementById("tabbar").addEventListener("keydown",function(e){
+  if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft") return;
+  var cur=TABS.indexOf((document.querySelector(".tabbtn[aria-selected='true']")||{}).getAttribute("data-tab"));
+  var nx=TABS[(cur+(e.key==="ArrowRight"?1:TABS.length-1))%TABS.length]; showTab(nx,false); document.getElementById("tb-"+nx).focus();
+});
+document.querySelectorAll("[data-go]").forEach(function(b){b.addEventListener("click",function(){showTab(b.getAttribute("data-go"),true);});});
+
+/* ---------- answer checking ---------- */
+function isPlainNum(v){return /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(v);}
+function num(v){ if(v===null||v===undefined) return NaN; v=String(v).trim().replace(/−/g,"-").replace(/,/g,""); if(v==="") return NaN; if(isPlainNum(v)) return parseFloat(v);
+  if(/^[\d\s.+\-*/^()×÷√²a-z]+$/i.test(v)){ try{ var r=evaluate(v); return isFinite(r)?r:NaN; }catch(e){ return NaN; } } return NaN; }
+function roundShow(r){var a=Math.abs(r);return String(a!==0&&a<0.01?+r.toPrecision(4):+r.toFixed(4));}
+/* boxes accept calculations: on Enter or leaving the box, the calculation is replaced by its answer */
+function settleExpr(inp){var raw=inp.value.trim().replace(/−/g,"-");if(raw===""||isPlainNum(raw.replace(/,/g,"")))return;var r=num(raw);
+  var note=inp.parentElement.querySelector(".exprnote");
+  if(isFinite(r)){inp.value=roundShow(r);inp.title=raw;if(!note&&inp.closest(".answer-row")){note=document.createElement("span");note.className="exprnote";inp.insertAdjacentElement("afterend",note);}if(note)note.textContent="from "+raw;inp.dispatchEvent(new Event("input",{bubbles:true}));}}
+document.addEventListener("change",function(e){var t=e.target;if(t&&t.classList&&t.classList.contains("ans"))settleExpr(t);});
+document.addEventListener("keydown",function(e){var t=e.target;if(e.key==="Enter"&&t&&t.classList&&t.classList.contains("ans")){e.preventDefault();settleExpr(t);}});
+function near(v,target,rel,abs){ if(!isFinite(v)||!isFinite(target)) return false; return Math.abs(v-target)<=Math.max(Math.abs(target)*(rel||0.01),abs||0); }
+function setStat(el,state,msg){ if(!el) return; el.className="status"+(state==="ok"?" ok":state==="bad"?" bad":""); el.innerHTML=msg||""; }
+function stepDone(host,n,ok){var e=host.querySelector(".step[data-step='"+n+"']"); if(e) e.classList.toggle("complete",!!ok);}
+
+/* =========== Tab 1: sort + flowchart =========== */
+var SORT=[
+  {q:"Researchers measure blood pressure in 20 patients before and after a 6-week exercise program.",a:"p",why:"Same 20 people measured twice, so each 'before' value has a matching 'after' value. Paired."},
+  {q:"Leaf length is measured on 25 oak trees on north-facing slopes and 25 different oak trees on south-facing slopes.",a:"i",why:"Different trees in each group, so nothing links a north tree to a particular south tree. Independent."},
+  {q:"Enzyme activity is compared between a dish of treated cells and a separate dish of untreated cells.",a:"i",why:"Two separate sets of cells, each in only one group. Independent."},
+  {q:"The left claw and the right claw of 15 fiddler crabs are weighed.",a:"p",why:"Both claws come from the same crab, so each left claw pairs with one right claw. Paired."},
+  {q:"Body mass of 12 male and 12 female hummingbirds caught at the same feeder.",a:"i",why:"Equal group sizes don't make data paired. These are 24 different birds. Independent."},
+  {q:"Heart rate of 10 zebrafish is recorded in cold water, then again in warm water.",a:"p",why:"The same fish under two conditions. Paired."}
+];
+var sortState=SORT.map(function(){return null;});
+function buildSort(){
+  var host=document.getElementById("sortList"); host.innerHTML="";
+  SORT.forEach(function(s,i){
+    var c=document.createElement("div"); c.className="sort-card";
+    c.innerHTML="<p>"+s.q+"</p><div class='btns'><button class='btn' type='button' data-v='i'>Independent</button><button class='btn' type='button' data-v='p'>Paired</button></div><div class='fb' hidden></div>";
+    c.querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){
+      var v=b.getAttribute("data-v"); sortState[i]=v;
+      c.querySelectorAll("button").forEach(function(x){x.classList.toggle("sel",x===b);});
+      var fb=c.querySelector(".fb"); fb.hidden=false; var ok=v===s.a; fb.className="fb "+(ok?"ok":"no");
+      fb.innerHTML=(ok?"<b>Yes.</b> ":"<b>Not quite.</b> ")+s.why;
+      document.getElementById("sortScore").textContent=sortState.filter(function(x,j){return x===SORT[j].a;}).length+" / "+SORT.length;
+    });});
+    host.appendChild(c);
+  });
+}
+var FLOW={paired:null,normal:null,size:null,eqvar:null};
+var FLOWQ=[
+  {k:"paired",q:"Are the data paired (the same individuals measured twice)?",opts:[["yes","Yes, paired"],["no","No, independent groups"]]},
+  {k:"normal",q:"Are the data normally distributed? (For paired data, check the differences.)",opts:[["yes","Yes, roughly normal"],["no","No"]]},
+  {k:"size",q:"Is the sample size large?",opts:[["large","Large"],["small","Small"]]},
+  {k:"eqvar",q:"Do the groups have equal variance? (Levene's test p > 0.05)",opts:[["yes","Yes, equal"],["no","No, different"]]}
+];
+function flowNeeded(k){
+  if(k==="paired") return true;
+  if(k==="normal") return FLOW.paired!==null;
+  if(k==="size") return FLOW.normal==="yes";
+  if(k==="eqvar") return FLOW.paired==="no"&&FLOW.normal==="yes"&&FLOW.size==="large";
+}
+function renderFlow(){
+  var host=document.getElementById("flow"); host.innerHTML="";
+  FLOWQ.forEach(function(q){
+    if(!flowNeeded(q.k)) return;
+    var d=document.createElement("div"); d.className="fq";
+    d.innerHTML="<p>"+q.q+"</p><div class='btns'></div>";
+    q.opts.forEach(function(o){var b=document.createElement("button");b.type="button";b.className="btn"+(FLOW[q.k]===o[0]?" sel":"");b.textContent=o[1];
+      b.addEventListener("click",function(){FLOW[q.k]=o[0]; var after=false; FLOWQ.forEach(function(x){ if(after) FLOW[x.k]=null; if(x.k===q.k) after=true; }); renderFlow();});
+      d.querySelector(".btns").appendChild(b);});
+    host.appendChild(d);
+  });
+  var r="", why="";
+  if(FLOW.paired==="yes"){
+    if(FLOW.normal==="no"||FLOW.size==="small"){r="Wilcoxon signed-rank test";why="A non-parametric test for paired data. It doesn't assume the differences are normal.";}
+    else if(FLOW.size==="large"){r="Paired samples t-test";why="Parametric test on the differences within each individual. See Tab 6.";}
+  } else if(FLOW.paired==="no"){
+    if(FLOW.normal==="no"||FLOW.size==="small"){r="Mann-Whitney U test (or Kolmogorov-Smirnov)";why="A non-parametric test for two independent groups. It doesn't assume normal data.";}
+    else if(FLOW.eqvar==="yes"){r="Independent samples t-test: Student's (pooled) two-sample t-test";why="Normal data, equal variances. This is the test in Tabs 3 and 4.";}
+    else if(FLOW.eqvar==="no"){r="Independent samples t-test: Welch's t-test";why="Normal data, but the variances differ. See Tab 5.";}
+  }
+  document.getElementById("flowResult").innerHTML=r?"<div class='result-card'><b>Use: "+r+"</b>"+why+" <button class='linkbtn' type='button' id='flowReset'>Start over</button></div>":"";
+  var rs=document.getElementById("flowReset"); if(rs) rs.addEventListener("click",function(){FLOW={paired:null,normal:null,size:null,eqvar:null};renderFlow();});
+}
+
+/* =========== Tab 2: signal vs noise =========== */
+var sg={diff:document.getElementById("sgDiff"),sd:document.getElementById("sgSD"),n:document.getElementById("sgN")};
+function drawSignal(){
+  var diff=+sg.diff.value, s=+sg.sd.value, n=+sg.n.value;
+  document.getElementById("sgDiffO").textContent=diff.toFixed(1); document.getElementById("sgSDO").textContent=s.toFixed(1); document.getElementById("sgNO").textContent=n;
+  var m2=10,m1=10+diff, ymax=1.18*npdf(0)/s;
+  var P=Plot(document.getElementById("sgCurves"),680,200,{l:20,r:20,t:14,b:36},-2,26,ymax); P.clear();
+  var f1=function(x){return npdf((x-m1)/s)/s;}, f2=function(x){return npdf((x-m2)/s)/s;};
+  P.area(f2,-2,26,{fill:"var(--g2)",opacity:0.18},200); P.area(f1,-2,26,{fill:"var(--g1)",opacity:0.18},200);
+  P.curve(f2,{stroke:"var(--g2)","stroke-width":2.4},240); P.curve(f1,{stroke:"var(--g1)","stroke-width":2.4,"stroke-dasharray":"7,4"},240);
+  P.axis([0,2,4,6,8,10,12,14,16,18,20,22,24,26],function(v){return v;});
+  [[m1,"var(--g1)","x̄₁"],[m2,"var(--g2)","x̄₂"]].forEach(function(o,i){P.add("line",{x1:P.x(o[0]),x2:P.x(o[0]),y1:P.y(0),y2:P.y(ymax*0.9),stroke:o[1],"stroke-width":1.5});P.text(P.x(o[0])+(i?-4:4),P.y(ymax*0.93),o[2],{"text-anchor":i?"end":"start",fill:o[1],"font-weight":"700","font-size":"12"});});
+  if(diff>0.05){var yb=ymax*0.45; P.add("line",{x1:P.x(m2),x2:P.x(m1),y1:P.y(yb),y2:P.y(yb),stroke:"var(--amber)","stroke-width":2.5}); P.text(Math.max(P.x(m1),P.x(m2))+8,P.y(yb)+4,"signal "+diff.toFixed(1)+" mm",{"text-anchor":"start",fill:"var(--amber)","font-weight":"700",stroke:"var(--panel)","stroke-width":"4","paint-order":"stroke"});}
+  P.text(P.x(13),P.y(0)+32,"beetle body length (mm)",{"text-anchor":"middle","font-size":"10.5"});
+  var se=s*Math.sqrt(2/n), t=diff/se, df=2*n-2, crit=tcrit(0.05,df), p=p2(t,df);
+  document.getElementById("sgCalc").innerHTML="SE = √(s²/n + s²/n) = √("+s.toFixed(1)+"²/"+n+" + "+s.toFixed(1)+"²/"+n+") = <b>"+se.toFixed(3)+"</b><br>t = signal ÷ noise = "+diff.toFixed(1)+" ÷ "+se.toFixed(3)+" = <b>"+t.toFixed(2)+"</b>";
+  document.getElementById("sgTv").textContent=t.toFixed(2); document.getElementById("sgDf").textContent=df;
+  document.getElementById("sgCrit").textContent="± "+crit.toFixed(3); document.getElementById("sgP").textContent=fmtP(p);
+  drawTdist(document.getElementById("sgT"),df,t,crit,"2","t");
+  var rej=Math.abs(t)>crit;
+  document.getElementById("sgSent").innerHTML="The means are <b>"+t.toFixed(2)+" standard errors</b> apart. "+(rej?"That's past the critical value of "+crit.toFixed(3)+", so <b>reject H₀</b>: a gap this big would happen by chance less than 5% of the time (p = "+fmtP(p)+").":"That's inside ±"+crit.toFixed(3)+", so <b>fail to reject H₀</b>: a gap this size could easily come from ordinary variation (p = "+fmtP(p)+").");
+}
+Object.keys(sg).forEach(function(k){sg[k].addEventListener("input",drawSignal);});
+
+/* =========== Tab 3: worked example =========== */
+var LIZ1=[8.2,9.1,7.8,8.5,9.3,8.0,8.7,8.4], LIZ2=[7.5,8.0,7.2,7.8,8.1,7.4,7.9,7.6];
+function dataTable(a,b,n1,n2,label){
+  var h="<table class='data'><thead><tr><th>"+label+"</th><th class='g1'><span class='gtag'><span class='mk1'></span>"+n1+"</span></th><th class='g2'><span class='gtag'><span class='mk2'></span>"+n2+"</span></th></tr></thead><tbody>";
+  var N=Math.max(a.length,b.length);
+  for(var i=0;i<N;i++) h+="<tr><td class='rn'>"+(i+1)+"</td><td class='num'>"+(a[i]!==undefined?a[i].toFixed(1):"")+"</td><td class='num'>"+(b[i]!==undefined?b[i].toFixed(1):"")+"</td></tr>";
+  return h+"</tbody><tfoot><tr><td>n</td><td>"+a.length+"</td><td>"+b.length+"</td></tr></tfoot></table>";
+}
+function devTableStatic(a,m,dp){
+  var h="<table class='data'><thead><tr><th>xᵢ</th><th>xᵢ − x̄</th><th>(xᵢ − x̄)²</th></tr></thead><tbody>", tot=0;
+  a.forEach(function(x){var d=x-m, q=+(d*d).toFixed(4); tot+=q; h+="<tr><td class='num'>"+x.toFixed(1)+"</td><td class='num'>"+(d>0?"+":d<0?"−":"")+Math.abs(d).toFixed(dp)+"</td><td class='num'>"+q.toFixed(4)+"</td></tr>";});
+  return h+"</tbody><tfoot><tr><td>Sum</td><td>—</td><td>Σ = "+tot.toFixed(4)+"</td></tr></tfoot></table>";
+}
+var WK=[
+ {t:"Calculate the mean (x̄) for each group",h:function(){return "<div class='workline'><span class='gtag'><span class='mk1'></span>Sunny grassland</span><br>x̄₁ = (8.2 + 9.1 + 7.8 + 8.5 + 9.3 + 8.0 + 8.7 + 8.4) / 8 = 68.0 / 8 = <b>8.50 cm</b></div><div class='workline'><span class='gtag'><span class='mk2'></span>Shaded forest</span><br>x̄₂ = (7.5 + 8.0 + 7.2 + 7.8 + 8.1 + 7.4 + 7.9 + 7.6) / 8 = 61.5 / 8 = <b>7.6875 ≈ 7.69 cm</b></div>";}},
+ {t:"Calculate the sample variance (s²) for each group",h:function(){return "<p>Variance formula: s² = Σ(xᵢ − x̄)² / (n − 1). Subtract the mean from each value, square it, add them up, then divide by n − 1.</p><div class='ws two'><div><p class='subhead'>Group 1: sunny grassland (x̄₁ = 8.50)</p><div class='tscroll'>"+devTableStatic(LIZ1,8.5,2)+"</div><div class='workline'>s₁² = 1.8800 / (8 − 1) = 1.8800 / 7 = <b>0.2686</b></div></div><div><p class='subhead'>Group 2: shaded forest (x̄₂ = 7.6875)</p><div class='tscroll'>"+devTableStatic(LIZ2,7.6875,4)+"</div><div class='workline'>s₂² = 0.6891 / (8 − 1) = 0.6891 / 7 = <b>0.0984</b></div></div></div>";}},
+ {t:"Calculate the standard error of the difference",h:function(){return "<div class='workline'>SE = √(s₁²/n₁ + s₂²/n₂)<br>SE = √(0.2686/8 + 0.0984/8)<br>SE = √(0.03358 + 0.01230)<br>SE = √(0.04588) = <b>0.2142</b></div>";}},
+ {t:"Calculate the t-statistic",h:function(){return "<div class='workline'>t = (x̄₁ − x̄₂) / SE<br>t = (8.50 − 7.6875) / 0.2142<br>t = 0.8125 / 0.2142 = <b>3.79</b></div><p class='note'>The two means are 3.79 standard errors apart.</p>";}},
+ {t:"Find degrees of freedom and t-critical",h:function(){return "<div class='workline'>df = n₁ + n₂ − 2 = 8 + 8 − 2 = <b>14</b><br>t-table: row df = 14, column α = 0.05 (two-tailed) → <b>t-critical = 2.145</b></div><button class='btn' type='button' id='wkShowT'>Show me this in the t-table</button>";}},
+ {t:"Make a decision",h:function(){return "<div class='workline'>Compare |t calculated| with t-critical: <b>|3.79| &gt; 2.145</b> ✓</div><svg id='wkPlot' viewBox='0 0 680 230' role='img' aria-label='t-distribution with t = 3.79 in the rejection region'></svg><p><span class='verdict rej'>Reject H₀</span> The calculated t (3.79) is past the critical value (2.145), in the red rejection region.</p><div class='sentence'><b>Conclusion:</b> There is a statistically significant difference in tail length between western fence lizards in sunny grassland (x̄ = 8.50 cm) and shaded forest (x̄ = 7.69 cm) habitats (t₁₄ = 3.79, p &lt; 0.05).</div><p class='note'>Software would report the exact p-value: p = "+fmtP(p2(3.7936,14))+".</p>";}}
+];
+var wkShown=0;
+function renderWorked(){
+  var host=document.getElementById("wkSteps"); host.innerHTML="";
+  for(var i=0;i<wkShown;i++){var d=document.createElement("div");d.className="reveal";d.innerHTML="<div class='step-h'><span class='secnum'>"+(i+1)+"</span>"+WK[i].t+"</div>"+WK[i].h();host.appendChild(d);}
+  var nb=document.getElementById("wkNext"); nb.hidden=wkShown>=WK.length; nb.textContent="Show Step "+(wkShown+1);
+  document.getElementById("wkCount").textContent=wkShown+" of "+WK.length+" steps shown";
+  var sb=document.getElementById("wkShowT"); if(sb) sb.addEventListener("click",function(){openDrawer();pinCell("drTT",tableRow(14),2);});
+  if(wkShown>=6) drawTdist(document.getElementById("wkPlot"),14,3.79,2.145,"2","t");
+}
+document.getElementById("wkData").innerHTML=dataTable(LIZ1,LIZ2,"Sunny grassland (cm)","Shaded forest (cm)","Lizard #");
+document.getElementById("wkNext").addEventListener("click",function(){wkShown=Math.min(WK.length,wkShown+1);renderWorked();var r=document.querySelectorAll("#wkSteps .reveal");if(r.length&&r[r.length-1].scrollIntoView) r[r.length-1].scrollIntoView({block:"nearest"});});
+document.getElementById("wkAll").addEventListener("click",function(){wkShown=WK.length;renderWorked();});
+document.getElementById("wkReset").addEventListener("click",function(){wkShown=0;renderWorked();});
+
+/* =========== Tab 4: frogs practice =========== */
+var FROG1=["12.1","13.4","11.8","12.9","13.6","12.5","13.1","12.7"], FROG2=["14.2","15.1","13.8","14.7","15.3","14.0","14.9","14.5"];
+var fr={a:FROG1.slice(),b:FROG2.slice()};
+function frVals(arr){return arr.map(num).filter(function(v){return isFinite(v);});}
+function frNames(){return {n1:document.getElementById("frN1").value||"Group 1",n2:document.getElementById("frN2").value||"Group 2",v:document.getElementById("frVar").value||"the measurement"};}
+function renderFrTable(){
+  var nm=frNames(), N=Math.max(fr.a.length,fr.b.length);
+  var h="<thead><tr><th>#</th><th class='g1'><span class='gtag'><span class='mk1'></span>"+esc(nm.n1)+"</span></th><th class='g2'><span class='gtag'><span class='mk2'></span>"+esc(nm.n2)+"</span></th></tr></thead><tbody>";
+  for(var i=0;i<N;i++) h+="<tr><td class='rn'>"+(i+1)+"</td><td><input type='text' inputmode='decimal' id='frA"+i+"' data-g='a' data-i='"+i+"' value='"+esc(fr.a[i]||"")+"' aria-label='"+esc(nm.n1)+" value "+(i+1)+"'></td><td><input type='text' inputmode='decimal' id='frB"+i+"' data-g='b' data-i='"+i+"' value='"+esc(fr.b[i]||"")+"' aria-label='"+esc(nm.n2)+" value "+(i+1)+"'></td></tr>";
+  h+="</tbody><tfoot><tr><td>n</td><td id='frNa'></td><td id='frNb'></td></tr></tfoot>";
+  var t=document.getElementById("frTable"); t.innerHTML=h;
+  t.querySelectorAll("input").forEach(function(inp){inp.addEventListener("input",function(){fr[inp.getAttribute("data-g")][+inp.getAttribute("data-i")]=inp.value; frDataChanged(false);});
+    inp.addEventListener("paste",function(e){var txt=(e.clipboardData||window.clipboardData).getData("text"); if(!/[\s,\t]/.test(txt.trim())) return; e.preventDefault();
+      var rows=txt.trim().split(/\r?\n/), g=inp.getAttribute("data-g"), i0=+inp.getAttribute("data-i");
+      rows.forEach(function(r,k){var cells=r.split(/\t|,(?=\s*[-\d.])/); if(cells.length>=2&&g==="a"){fr.a[i0+k]=cells[0].trim();fr.b[i0+k]=cells[1].trim();} else fr[g][i0+k]=cells[0].trim();});
+      renderFrTable(); frDataChanged(true);});
+  });
+  frCounts();
+}
+function frCounts(){document.getElementById("frNa").textContent=frVals(fr.a).length;document.getElementById("frNb").textContent=frVals(fr.b).length;}
+function frTruth(){
+  var a=frVals(fr.a), b=frVals(fr.b), T={a:a,b:b,ok:a.length>=2&&b.length>=2};
+  if(!T.ok) return T;
+  T.m1=mean(a);T.m2=mean(b);T.ss1=ss(a);T.ss2=ss(b);T.v1=T.ss1/(a.length-1);T.v2=T.ss2/(b.length-1);
+  T.se=Math.sqrt(T.v1/a.length+T.v2/b.length);T.t=(T.m1-T.m2)/T.se;T.df=a.length+b.length-2;T.crit=tableCrit(T.df,0.05);T.critExact=tcrit(0.05,T.df);
+  T.p=p2(T.t,T.df);T.reject=Math.abs(T.t)>T.crit;return T;
+}
+function isFrogDefault(){return fr.a.join()==FROG1.join()&&fr.b.join()==FROG2.join();}
+function frDataChanged(rebuild){
+  frCounts();
+  var T=frTruth(), note=document.getElementById("frDataNote");
+  if(!T.ok){note.innerHTML="<span class='status bad'>Each group needs at least 2 numbers.</span>";}
+  else note.innerHTML=isFrogDefault()?"Using the frog data from the activity.":"<b>Your own data:</b> every answer below is now checked against these numbers."+(T.a.length!==T.b.length?" Groups have different sizes. This page uses the activity's formula; software's pooled (Student's) test gives a slightly different SE when n₁ ≠ n₂. Compare in the Data Lab.":"");
+  if(rebuild) buildFrDev(); else refreshDevRows();
+  checkFrogs();
+}
+function devBlock(g){
+  var nm=frNames(), name=g==="a"?nm.n1:nm.n2, vals=frVals(fr[g]), mkc=g==="a"?"mk1":"mk2", sub=g==="a"?"₁":"₂";
+  var h="<div><div class='devhead'><span class='gtag'><span class='"+mkc+"'></span>"+esc(name)+"</span></div><div class='tscroll'><table class='data' id='dev"+g+"'><thead><tr><th>xᵢ</th><th>xᵢ − x̄"+sub+"</th><th>(xᵢ − x̄"+sub+")²</th></tr></thead><tbody>";
+  vals.forEach(function(v,i){h+="<tr><td class='num'>"+v+"</td><td><input class='ans' type='text' inputmode='decimal' id='d"+g+"D"+i+"' aria-label='deviation row "+(i+1)+"'></td><td><input class='ans' type='text' inputmode='decimal' id='d"+g+"Q"+i+"' aria-label='squared deviation row "+(i+1)+"'></td></tr>";});
+  h+="</tbody><tfoot><tr><td>Sum</td><td>—</td><td><input class='ans' type='text' inputmode='decimal' id='d"+g+"S' aria-label='sum of squared deviations' placeholder='Σ'></td></tr></tfoot></table></div>";
+  h+="<div class='data-tools'><button class='btn' type='button' data-fill='"+g+"'>Fill in the deviations for me</button></div>";
+  h+="<div class='answer-row'><label for='fV"+g+"'>s"+sub+"² = Σ / (n − 1) =</label><input class='ans wide' type='text' inputmode='decimal' id='fV"+g+"' placeholder='number or calculation'><span class='status' id='sfV"+g+"'></span></div></div>";
+  return h;
+}
+function buildFrWork(){
+  var host=document.getElementById("frWork");
+  host.innerHTML=
+  "<div class='step' data-step='1'><div class='step-h'><span class='step-n'>Step 1</span>State your hypotheses</div>"+
+    "<div class='answer-row'><label for='fH0'>H₀:</label><select class='pick' id='fH0'></select><span class='status' id='sfH0'></span></div>"+
+    "<div class='answer-row'><label for='fHA'>H<sub>A</sub>:</label><select class='pick' id='fHA'></select><span class='status' id='sfHA'></span></div>"+
+    "<div class='answer-row'><label for='fAl'>α =</label><input class='ans' type='text' inputmode='decimal' id='fAl'><span class='status' id='sfAl'></span></div></div>"+
+  "<div class='step' data-step='2'><div class='step-h'><span class='step-n'>Step 2</span>Calculate the mean for each group</div>"+
+    "<span class='formula'>x̄ = Σxᵢ / n</span>"+
+    "<div class='answer-row'><label for='fM1' id='lM1'>x̄₁ =</label><input class='ans wide' type='text' inputmode='decimal' id='fM1' placeholder='number or calculation'><span class='status' id='sfM1'></span></div>"+
+    "<div class='answer-row'><label for='fM2' id='lM2'>x̄₂ =</label><input class='ans wide' type='text' inputmode='decimal' id='fM2' placeholder='number or calculation'><span class='status' id='sfM2'></span></div>"+
+    "<button class='linkbtn' type='button' id='fMHint'>Show me how to set it up</button><div class='workline' id='fMHintBox' hidden></div></div>"+
+  "<div class='step' data-step='3'><div class='step-h'><span class='step-n'>Step 3</span>Calculate the sample variance for each group</div>"+
+    "<span class='formula'>s² = Σ(xᵢ − x̄)² / (n − 1)</span><p>Fill in the deviation tables. Keep at least 4 decimal places. Each box turns green when it's right.</p><div class='ws two' id='frDev'></div></div>"+
+  "<div class='step' data-step='4'><div class='step-h'><span class='step-n'>Step 4</span>Calculate the standard error</div>"+
+    "<span class='formula'>SE = √(s₁²/n₁ + s₂²/n₂)</span>"+
+    "<div class='answer-row'><label for='fSE'>SE =</label><input class='ans wide' type='text' inputmode='decimal' id='fSE' placeholder='number or calculation'><span class='status' id='sfSE'></span></div></div>"+
+  "<div class='step' data-step='5'><div class='step-h'><span class='step-n'>Step 5</span>Calculate the t-statistic</div>"+
+    "<span class='formula'>t = (x̄₁ − x̄₂) / SE</span>"+
+    "<div class='answer-row'><label for='fT'>t =</label><input class='ans wide' type='text' inputmode='decimal' id='fT' placeholder='number or calculation'><span class='status' id='sfT'></span></div></div>"+
+  "<div class='step' data-step='6'><div class='step-h'><span class='step-n'>Step 6</span>Find degrees of freedom and t-critical</div>"+
+    "<span class='formula'>df = n₁ + n₂ − 2</span>"+
+    "<div class='answer-row'><label for='fDf'>df =</label><input class='ans' type='text' inputmode='numeric' id='fDf'><span class='status' id='sfDf'></span></div>"+
+    "<div class='answer-row'><label for='fCr'>t-critical (α = 0.05, two-tailed) =</label><input class='ans' type='text' inputmode='decimal' id='fCr'><span class='status' id='sfCr'></span><button class='btn' type='button' id='fOpenT'>Open the t-table</button></div></div>"+
+  "<div class='step' data-step='7'><div class='step-h'><span class='step-n'>Step 7</span>Decision and conclusion</div>"+
+    "<div class='answer-row'><span>Is |t calculated| &gt; t-critical?</span><div class='seg' id='fCmp'><button type='button' data-v='y'>Yes</button><button type='button' data-v='n'>No</button></div><span class='status' id='sfCmp'></span></div>"+
+    "<div class='answer-row'><span>Decision:</span><div class='seg' id='fDec'><button type='button' data-v='r'>Reject H₀</button><button type='button' data-v='f'>Fail to reject H₀</button></div><span class='status' id='sfDec'></span></div>"+
+    "<p class='subhead' style='margin-top:12px;'>Build your conclusion sentence</p><div class='concl-builder' id='fConc'></div><span class='status' id='sfConc'></span>"+
+    "<span class='step-anchor'></span><svg id='frPlot' viewBox='0 0 680 230' role='img' aria-label='t-distribution with your t' hidden></svg>"+
+    "<div id='frFinal'></div>"+
+    "<label class='subhead' for='fOwn' style='display:block;margin-top:12px;'>Write your biological conclusion in your own words (copy it into Canvas)</label><textarea id='fOwn' style='min-height:80px;font-family:var(--f-body);'></textarea>"+
+    "<button class='btn' type='button' id='fModel' style='margin-top:8px;'>Show a model conclusion</button><div id='fModelBox'></div></div>";
+  fillHypOptions();
+  buildFrDev();
+  addReveals(host,[1,2,3,4,5,6,7],frAnswer);
+  host.addEventListener("input",checkFrogs);
+  host.addEventListener("change",checkFrogs);
+  ["fCmp","fDec"].forEach(function(id){document.getElementById(id).querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){
+    document.getElementById(id).querySelectorAll("button").forEach(function(x){x.classList.toggle("sel",x===b);}); document.getElementById(id).setAttribute("data-val",b.getAttribute("data-v")); checkFrogs();});});});
+  document.getElementById("fMHint").addEventListener("click",function(){var b=document.getElementById("fMHintBox");b.hidden=!b.hidden;frHint();});
+  document.getElementById("fOpenT").addEventListener("click",function(){openDrawer();});
+  document.getElementById("fModel").addEventListener("click",function(){var T=frTruth(),nm=frNames();if(!T.ok)return;document.getElementById("fModelBox").innerHTML="<div class='sentence'>"+modelConclusion(T,nm)+"</div>";});
+}
+function addReveals(host,steps,gen,label){
+  steps.forEach(function(n){var st=host.querySelector(".step[data-step='"+n+"']");if(!st)return;
+    var w=document.createElement("div");w.className="stuck";
+    w.innerHTML="<button class='btn ghost' type='button'>Stuck? Show the answer for Step "+n+"</button><div class='workline stuckbox' hidden></div>";
+    var btn=w.querySelector("button"),box=w.querySelector(".stuckbox");
+    btn.addEventListener("click",function(){if(box.hidden){box.innerHTML=gen(n);box.hidden=false;btn.textContent="Hide the answer for Step "+n;st.classList.add("peeked");}else{box.hidden=true;btn.textContent="Show the answer for Step "+n+" again";}});
+    var anchor=st.querySelector(".step-anchor");
+    if(anchor) st.insertBefore(w,anchor); else st.appendChild(w);
+  });
+}
+function frAnswer(n){
+  var T=frTruth(),nm=frNames(); if(!T.ok) return "Enter at least 2 values in each group first.";
+  var a=T.a,b=T.b,n1=a.length,n2=b.length;
+  if(n===1) return "H₀: There is no difference in mean "+esc(nm.v)+" between "+esc(nm.n1)+" and "+esc(nm.n2)+" (μ₁ = μ₂).<br>H<sub>A</sub>: There is a difference (μ₁ ≠ μ₂).<br>α = <b>0.05</b>";
+  if(n===2) return "x̄₁ = ("+a.join(" + ")+") / "+n1+" = "+(+sum(a).toFixed(4))+" / "+n1+" = <b>"+f(T.m1)+"</b><br>x̄₂ = ("+b.join(" + ")+") / "+n2+" = "+(+sum(b).toFixed(4))+" / "+n2+" = <b>"+f(T.m2)+"</b>";
+  if(n===3) return "Σ(xᵢ − x̄₁)² = "+f(T.ss1)+" → s₁² = "+f(T.ss1)+" / "+(n1-1)+" = <b>"+f(T.v1)+"</b><br>Σ(xᵢ − x̄₂)² = "+f(T.ss2)+" → s₂² = "+f(T.ss2)+" / "+(n2-1)+" = <b>"+f(T.v2)+"</b><br><span class='note'>Use \"Fill in the deviations for me\" to see every row.</span>";
+  if(n===4) return "SE = √("+f(T.v1)+"/"+n1+" + "+f(T.v2)+"/"+n2+") = √("+f(T.v1/n1,5)+" + "+f(T.v2/n2,5)+") = √("+f(T.v1/n1+T.v2/n2,5)+") = <b>"+f(T.se)+"</b>";
+  if(n===5) return "t = ("+f(T.m1)+" − "+f(T.m2)+") / "+f(T.se)+" = "+sgn(T.m1-T.m2,4)+" / "+f(T.se)+" = <b>"+sgn(T.t,2)+"</b>";
+  if(n===6) return "df = "+n1+" + "+n2+" − 2 = <b>"+T.df+"</b><br>t-table row df = "+T_ROWS[tableRow(T.df)][0]+", column α = 0.05 → t-critical = <b>"+T.crit.toFixed(3)+"</b>";
+  if(n===7) return "|"+sgn(T.t,2)+"| "+(T.reject?"&gt;":"≤")+" "+T.crit.toFixed(3)+" → <b>"+(T.reject?"Reject H₀":"Fail to reject H₀")+"</b><br>Conclusion builder: There <b>"+(T.reject?"is":"is no")+"</b> … p <b>"+(T.reject?"&lt;":"&gt;")+"</b> 0.05 … higher mean: <b>"+esc(T.m1>T.m2?nm.n1:nm.n2)+"</b>";
+}
+function pdAnswer(n){
+  if(n===2) return "d̄ = ΣD / 13 = "+sgn(sum(DIFF),2)+" / 13 = <b>"+sgn(PD.dbar,3)+"</b><br>s<sub>d</sub> = √(Σ(d − d̄)² / 12) = <b>"+PD.sd.toFixed(3)+"</b> (open \"Show the s<sub>d</sub> working\")";
+  if(n===3) return "SE = "+PD.sd.toFixed(3)+" / √13 = "+PD.sd.toFixed(3)+" / 3.606 = <b>"+PD.se.toFixed(3)+"</b><br>t = "+sgn(PD.dbar,3)+" / "+PD.se.toFixed(3)+" = <b>"+sgn(PD.t,2)+"</b>";
+  if(n===4) return "df = 13 − 1 = <b>12</b> → t-critical = <b>2.179</b><br>|"+sgn(PD.t,2)+"| &lt; 2.179 → <b>Fail to reject H₀</b> (p = "+PD.p.toFixed(2)+")";
+}
+function modelConclusion(T,nm){
+  var hi=T.m1>T.m2?nm.n1:nm.n2, lo=T.m1>T.m2?nm.n2:nm.n1;
+  if(T.reject) return "There is a statistically significant difference in "+esc(nm.v)+" between "+esc(nm.n1)+" (x̄ = "+T.m1.toFixed(2)+") and "+esc(nm.n2)+" (x̄ = "+T.m2.toFixed(2)+") (t<sub>"+T.df+"</sub> = "+sgn(T.t,2)+", p &lt; 0.05). "+esc(lo)+" values were significantly lower than "+esc(hi)+" values."+(isFrogDefault()?" This supports the hypothesis that habitat quality may influence body condition in Pacific tree frogs.":"");
+  return "There is no statistically significant difference in "+esc(nm.v)+" between "+esc(nm.n1)+" (x̄ = "+T.m1.toFixed(2)+") and "+esc(nm.n2)+" (x̄ = "+T.m2.toFixed(2)+") (t<sub>"+T.df+"</sub> = "+sgn(T.t,2)+", p &gt; 0.05). The observed difference could be due to random variation.";
+}
+function fillHypOptions(){
+  var nm=frNames(), v=esc(nm.v), a=esc(nm.n1), b=esc(nm.n2);
+  var H0=[["","Choose…"],["w","The mean "+v+" of "+a+" is less than "+b+"."],["c","There is no difference in mean "+v+" between "+a+" and "+b+" (μ₁ = μ₂)."],["d","There is a difference in mean "+v+" between "+a+" and "+b+" (μ₁ ≠ μ₂)."]];
+  var HA=[["","Choose…"],["n","There is no difference in mean "+v+" between "+a+" and "+b+" (μ₁ = μ₂)."],["c","There is a difference in mean "+v+" between "+a+" and "+b+" (μ₁ ≠ μ₂)."],["s","The sample means are exactly equal."]];
+  [["fH0",H0],["fHA",HA]].forEach(function(p){var s=document.getElementById(p[0]),cur=s.value;s.innerHTML=p[1].map(function(o){return "<option value='"+o[0]+"'>"+o[1]+"</option>";}).join("");s.value=cur||"";});
+  document.getElementById("lM1").textContent="x̄₁ ("+nm.n1+") =";document.getElementById("lM2").textContent="x̄₂ ("+nm.n2+") =";
+  var c=document.getElementById("fConc"); var keep={};
+  c.querySelectorAll("select").forEach(function(s){keep[s.id]=s.value;});
+  c.innerHTML="There <select id='fC1'><option value=''>…</option><option value='is'>is</option><option value='isnot'>is no</option></select> statistically significant difference in "+v+" between "+a+" and "+b+" (t<sub>df</sub> = your t, p <select id='fC2'><option value=''>…</option><option value='lt'>&lt;</option><option value='gt'>&gt;</option></select> 0.05). The group with the higher mean is <select id='fC3'><option value=''>…</option><option value='a'>"+a+"</option><option value='b'>"+b+"</option></select>.";
+  Object.keys(keep).forEach(function(k){var s=document.getElementById(k);if(s) s.value=keep[k];});
+}
+function buildFrDev(){
+  var host=document.getElementById("frDev"); if(!host) return;
+  host.innerHTML=devBlock("a")+devBlock("b");
+  host.querySelectorAll("[data-fill]").forEach(function(b){b.addEventListener("click",function(){
+    var g=b.getAttribute("data-fill"), vals=frVals(fr[g]), m=mean(vals), tot=0;
+    vals.forEach(function(v,i){var d=v-m,q=d*d;tot+=q;document.getElementById("d"+g+"D"+i).value=(+d.toFixed(4));document.getElementById("d"+g+"Q"+i).value=(+q.toFixed(4));});
+    document.getElementById("d"+g+"S").value=(+tot.toFixed(4)); checkFrogs();});});
+}
+function refreshDevRows(){
+  // rebuild only if the number of values changed; otherwise keep the student's entries
+  ["a","b"].forEach(function(g){var t=document.getElementById("dev"+g); if(!t) return; var rows=t.querySelectorAll("tbody tr"), vals=frVals(fr[g]);
+    if(rows.length!==vals.length){buildFrDev();return;} rows.forEach(function(r,i){r.firstChild.textContent=vals[i];});});
+}
+function frHint(){
+  var a=frVals(fr.a), b=frVals(fr.b);
+  document.getElementById("fMHintBox").innerHTML="x̄₁ = ("+a.join(" + ")+") / "+a.length+"<br>x̄₂ = ("+b.join(" + ")+") / "+b.length+"<br><span class='note'>Type the whole thing into the calculator, brackets included.</span>";
+}
+function gv(id){var e=document.getElementById(id);return e?num(e.value):NaN;}
+function mark(id,ok,msgOk,msgBad){var v=document.getElementById(id); var s=document.getElementById("s"+id); var raw=v?v.value.trim():"";
+  if(raw===""){setStat(s,"","");return false;} setStat(s,ok?"ok":"bad",ok?(msgOk||"✓ Correct"):(msgBad||"✗ Not yet")); return ok;}
+var frDone={};
+function checkFrogs(){
+  var T=frTruth(); if(!T.ok) return;
+  var host=document.getElementById("frWork");
+  var s1=(function(){var a=document.getElementById("fH0").value,b=document.getElementById("fHA").value;
+    setStat(document.getElementById("sfH0"),a?(a==="c"?"ok":"bad"):"",a?(a==="c"?"✓ The null always says 'no difference'.":"✗ H₀ is always the 'no difference' statement."):"");
+    setStat(document.getElementById("sfHA"),b?(b==="c"?"ok":"bad"):"",b?(b==="c"?"✓ Two-tailed: a difference in either direction.":(b==="s"?"✗ Hypotheses are about population means (μ), not the sample.":"✗ That's the null.")):"");
+    var al=mark("fAl",near(gv("fAl"),0.05,0,1e-9),"✓","✗ The activity uses α = 0.05.");
+    return a==="c"&&b==="c"&&al;})();
+  stepDone(host,1,s1);
+  var m1=gv("fM1"), m2=gv("fM2");
+  var ok1=mark("fM1",near(m1,T.m1,0.001,0.006),"✓","✗ Add all the values, then divide by n."), ok2=mark("fM2",near(m2,T.m2,0.001,0.006),"✓","✗ Add all the values, then divide by n.");
+  stepDone(host,2,ok1&&ok2);
+  // step 3
+  var vOK={};
+  ["a","b"].forEach(function(g){
+    var vals=g==="a"?T.a:T.b, m=g==="a"?T.m1:T.m2, mine=g==="a"?m1:m2, useM=near(mine,m,0.001,0.006)?mine:m, allRow=true, sumMine=0;
+    vals.forEach(function(x,i){
+      var di=document.getElementById("d"+g+"D"+i), qi=document.getElementById("d"+g+"Q"+i); if(!di) return;
+      var dv=num(di.value), qv=num(qi.value);
+      var dOK=isFinite(dv)&&(near(dv,x-m,0,0.006)||near(dv,x-useM,0,0.0006)), qOK=isFinite(qv)&&(near(qv,(x-m)*(x-m),0.015,0.002)||(isFinite(dv)&&near(qv,dv*dv,0.005,0.0006)));
+      di.parentElement.className=di.value.trim()===""?"":(dOK?"ok":"no"); qi.parentElement.className=qi.value.trim()===""?"":(qOK?"ok":"no");
+      if(!(dOK&&qOK)) allRow=false; if(isFinite(qv)) sumMine+=qv;
+    });
+    var se=document.getElementById("d"+g+"S"), sv=num(se.value), trueSS=g==="a"?T.ss1:T.ss2;
+    var sOK=isFinite(sv)&&(near(sv,trueSS,0.01,0.002)||near(sv,sumMine,0.003,0.0006));
+    se.parentElement.className=se.value.trim()===""?"":(sOK?"ok":"no");
+    var vv=gv("fV"+g), n=vals.length, trueV=trueSS/(n-1);
+    vOK[g]=mark("fV"+g,near(vv,trueV,0.015,0.0006)||(isFinite(sv)&&sOK&&near(vv,sv/(n-1),0.005,0.0002)),"✓","✗ Divide the sum by n − 1 = "+(n-1)+", not by n.");
+  });
+  stepDone(host,3,vOK.a&&vOK.b);
+  // step 4
+  var va=gv("fVa"), vb=gv("fVb"), seMine=(vOK.a&&vOK.b)?Math.sqrt(va/T.a.length+vb/T.b.length):NaN, seV=gv("fSE");
+  var seOK=mark("fSE",near(seV,T.se,0.01,0.0005)||near(seV,seMine,0.004,0.0002),"✓","✗ Divide each variance by its n, add, then take the square root.");
+  stepDone(host,4,seOK);
+  // step 5
+  var tv=gv("fT"), tMine=(ok1&&ok2&&seOK)?(m1-m2)/seV:NaN, tOK=near(tv,T.t,0.012,0.006)||near(tv,tMine,0.005,0.005), tFlip=!tOK&&(near(-tv,T.t,0.012,0.006)||near(-tv,tMine,0.005,0.005));
+  if(document.getElementById("fT").value.trim()==="") setStat(document.getElementById("sfT"),"","");
+  else if(tOK) setStat(document.getElementById("sfT"),"ok","✓ The means are "+Math.abs(tv).toFixed(2)+" standard errors apart.");
+  else if(tFlip) setStat(document.getElementById("sfT"),"ok","✓ Right size, opposite sign. You subtracted x̄₂ − x̄₁. The sign only shows which group is bigger.");
+  else setStat(document.getElementById("sfT"),"bad","✗ Subtract the means (x̄₁ − x̄₂), then divide by SE.");
+  stepDone(host,5,tOK||tFlip);
+  // step 6
+  var dfOK=mark("fDf",gv("fDf")===T.df,"✓","✗ df = n₁ + n₂ − 2.");
+  var cr=gv("fCr"), crOK=mark("fCr",near(cr,T.crit,0,0.0011)||near(cr,T.critExact,0,0.0011),"✓ Row df = "+(T.df>=1e9?"∞":T_ROWS[tableRow(T.df)][0])+", column 0.05.","✗ Use row df = "+(T_ROWS[tableRow(T.df)][0])+" and the two-tailed α = 0.05 column.");
+  stepDone(host,6,dfOK&&crOK);
+  // step 7
+  var cmp=document.getElementById("fCmp").getAttribute("data-val"), dec=document.getElementById("fDec").getAttribute("data-val");
+  var cmpOK=cmp?((cmp==="y")===T.reject):null, decOK=dec?((dec==="r")===T.reject):null;
+  setStat(document.getElementById("sfCmp"),cmp?(cmpOK?"ok":"bad"):"",cmp?(cmpOK?"✓ |"+T.t.toFixed(2)+"| vs "+T.crit:"✗ Compare |"+T.t.toFixed(2)+"| with "+T.crit+"."):"");
+  setStat(document.getElementById("sfDec"),dec?(decOK?"ok":"bad"):"",dec?(decOK?"✓":"✗ If |t| > t-critical, reject H₀. Otherwise, fail to reject."):"");
+  var c1=document.getElementById("fC1").value,c2=document.getElementById("fC2").value,c3=document.getElementById("fC3").value;
+  var cOK=c1&&c2&&c3&&((c1==="is")===T.reject)&&((c2==="lt")===T.reject)&&((c3==="a")===(T.m1>T.m2));
+  setStat(document.getElementById("sfConc"),(c1&&c2&&c3)?(cOK?"ok":"bad"):"",(c1&&c2&&c3)?(cOK?"✓ Nice sentence.":"✗ Check each choice against your decision and your two means."):"");
+  stepDone(host,7,cmpOK&&decOK&&cOK);
+  var showPlot=dfOK&&crOK&&(tOK||tFlip);
+  var pl=document.getElementById("frPlot"); pl.hidden=!showPlot;
+  if(showPlot) drawTdist(pl,T.df,T.t,T.crit,"2","your t");
+  document.getElementById("frFinal").innerHTML=(cmpOK&&decOK)?"<p class='note'>Software would report the exact p-value: <b>p "+(T.p<0.0001?"":"= ")+fmtP(T.p)+"</b>.</p>":"";
+}
+document.getElementById("frAdd").addEventListener("click",function(){fr.a.push("");fr.b.push("");renderFrTable();});
+document.getElementById("frReset").addEventListener("click",function(){fr={a:FROG1.slice(),b:FROG2.slice()};document.getElementById("frN1").value="Urban park";document.getElementById("frN2").value="Rural wetland";document.getElementById("frVar").value="body mass";fillHypOptions();renderFrTable();frDataChanged(true);});
+document.getElementById("frClear").addEventListener("click",function(){fr={a:["","","","",""],b:["","","","",""]};document.getElementById("frN1").value="Group 1";document.getElementById("frN2").value="Group 2";document.getElementById("frVar").value="the measurement";fillHypOptions();renderFrTable();frDataChanged(true);var f=document.getElementById("frA0");if(f)f.focus();});
+["frN1","frN2","frVar"].forEach(function(id){document.getElementById(id).addEventListener("input",function(){fillHypOptions();var nm=frNames();document.querySelectorAll("#frTable thead th.g1 .gtag").forEach(function(e){e.innerHTML="<span class='mk1'></span>"+esc(nm.n1);});document.querySelectorAll("#frTable thead th.g2 .gtag").forEach(function(e){e.innerHTML="<span class='mk2'></span>"+esc(nm.n2);});
+  var da=document.querySelector("#frDev > div:first-child .gtag"), db=document.querySelector("#frDev > div:last-child .gtag"); if(da) da.innerHTML="<span class='mk1'></span>"+esc(nm.n1); if(db) db.innerHTML="<span class='mk2'></span>"+esc(nm.n2); checkFrogs();});});
+
+/* =========== Tab 5: Welch =========== */
+var wI={s1:document.getElementById("wSD1"),s2:document.getElementById("wSD2"),n1:document.getElementById("wN1"),n2:document.getElementById("wN2")};
+function welchStats(m1,s1,n1,m2,s2,n2){
+  var v1=s1*s1,v2=s2*s2, dfS=n1+n2-2, sp2=((n1-1)*v1+(n2-1)*v2)/dfS, seS=Math.sqrt(sp2*(1/n1+1/n2)), tS=(m1-m2)/seS;
+  var a=v1/n1,b=v2/n2, seW=Math.sqrt(a+b), tW=(m1-m2)/seW, dfW=(a+b)*(a+b)/(a*a/(n1-1)+b*b/(n2-1));
+  return {sp2:sp2,seS:seS,tS:tS,dfS:dfS,pS:p2(tS,dfS),cS:tcrit(0.05,dfS),seW:seW,tW:tW,dfW:dfW,pW:p2(tW,dfW),cW:tcrit(0.05,dfW)};
+}
+function drawWelch(){
+  var s1=+wI.s1.value,s2=+wI.s2.value,n1=+wI.n1.value,n2=+wI.n2.value;
+  ["s1","s2","n1","n2"].forEach(function(k){document.getElementById({s1:"wSD1o",s2:"wSD2o",n1:"wN1o",n2:"wN2o"}[k]).textContent=wI[k].value;});
+  var m1=100,m2=108, ymax=1.15*npdf(0)/Math.min(s1,s2);
+  var P=Plot(document.getElementById("wCurves"),680,210,{l:20,r:20,t:14,b:36},40,170,ymax); P.clear();
+  var f1=function(x){return npdf((x-m1)/s1)/s1;}, f2=function(x){return npdf((x-m2)/s2)/s2;};
+  P.area(f1,40,170,{fill:"var(--g1)",opacity:0.18},220); P.area(f2,40,170,{fill:"var(--g2)",opacity:0.18},220);
+  P.curve(f1,{stroke:"var(--g1)","stroke-width":2.4,"stroke-dasharray":"7,4"},260); P.curve(f2,{stroke:"var(--g2)","stroke-width":2.4},260);
+  P.axis([40,60,80,100,120,140,160],function(v){return v;});
+  var W=welchStats(m1,s1,n1,m2,s2,n2), ratio=Math.max(s1,s2)*Math.max(s1,s2)/(Math.min(s1,s2)*Math.min(s1,s2));
+  document.getElementById("wRatio").textContent=ratio.toFixed(2);
+  function row(name,se,t,df,c,p){var rej=p<0.05;return "<tr><td>"+name+"</td><td>"+se.toFixed(3)+"</td><td>"+sgn(t,2)+"</td><td>"+(Math.abs(df-Math.round(df))<1e-9?df:df.toFixed(1))+"</td><td>± "+c.toFixed(3)+"</td><td>"+fmtP(p)+"</td><td><span class='verdict "+(rej?"rej":"fail")+"'>"+(rej?"Reject H₀":"Fail to reject")+"</span></td></tr>";}
+  document.getElementById("wTable").innerHTML="<thead><tr><th>Test</th><th>SE</th><th>t</th><th>df</th><th>t-critical (0.05)</th><th>p</th><th>Decision</th></tr></thead><tbody>"+
+    row("Student's (pooled)",W.seS,W.tS,W.dfS,W.cS,W.pS)+row("Welch's",W.seW,W.tW,W.dfW,W.cW,W.pW)+"</tbody>";
+  var same=(W.pS<0.05)===(W.pW<0.05), msg;
+  if(ratio<1.5) msg="The spreads are similar (variance ratio "+ratio.toFixed(2)+"), so both tests give almost the same answer. Student's test is fine here.";
+  else msg="The spreads differ (one variance is "+ratio.toFixed(1)+"× the other). Welch's test lowers df to "+W.dfW.toFixed(1)+" to be more cautious. "+(same?"Here both tests still reach the same decision.":"<b>The two tests disagree.</b> Student's test is misled by the unequal spreads, so trust Welch's.");
+  document.getElementById("wSent").innerHTML=msg;
+}
+Object.keys(wI).forEach(function(k){wI[k].addEventListener("input",drawWelch);});
+
+/* =========== Tab 6: paired blackbirds =========== */
+var BIRD_ID=[1,4,5,6,9,10,15,16,17,19,20,23,24];
+var BEFORE=[4.65,3.91,4.91,4.50,4.80,4.88,4.88,4.78,4.98,4.87,4.75,4.70,4.93], AFTER=[4.44,4.30,4.98,4.45,5.00,5.00,5.01,4.96,5.02,4.73,4.77,4.60,5.01];
+var DIFF=BEFORE.map(function(b,i){return +(b-AFTER[i]).toFixed(2);});
+var PD={n:13,dbar:mean(DIFF),sd:Math.sqrt(vari(DIFF))}; PD.se=PD.sd/Math.sqrt(13); PD.t=PD.dbar/PD.se; PD.df=12; PD.crit=2.179; PD.p=p2(PD.t,12);
+function buildPaired(){
+  var h="<thead><tr><th>Bird</th><th>Before</th><th>After</th><th>d = Before − After</th></tr></thead><tbody>";
+  BIRD_ID.forEach(function(id,i){h+="<tr><td class='rn'>"+id+"</td><td class='num'>"+BEFORE[i].toFixed(2)+"</td><td class='num'>"+AFTER[i].toFixed(2)+"</td><td><input class='ans' type='text' inputmode='decimal' id='pdD"+i+"' aria-label='difference for bird "+id+"'></td></tr>";});
+  document.getElementById("pdTable").innerHTML=h+"</tbody>";
+  document.getElementById("pdTable").addEventListener("input",checkPaired);
+  document.getElementById("pdFill").addEventListener("click",function(){DIFF.forEach(function(d,i){document.getElementById("pdD"+i).value=d.toFixed(2);});checkPaired();});
+  // slope chart
+  var svg=document.getElementById("pdSlope"), W=320,H=300, y0=3.8,y1=5.1, X0=80,X1=240;
+  function Y(v){return 20+(1-(v-y0)/(y1-y0))*(H-60);}
+  for(var g=3.8;g<=5.101;g+=0.2){svg.appendChild(mk("line",{x1:40,x2:W-10,y1:Y(g),y2:Y(g),stroke:"var(--line)","stroke-width":1}));var tx=mk("text",{x:34,y:Y(g)+4,"text-anchor":"end","font-size":"10.5",fill:"var(--muted)","font-family":"IBM Plex Mono, monospace"});tx.textContent=g.toFixed(1);svg.appendChild(tx);}
+  BEFORE.forEach(function(b,i){var a=AFTER[i],down=a<b;svg.appendChild(mk("line",{x1:X0,x2:X1,y1:Y(b),y2:Y(a),stroke:down?"var(--amber)":"var(--navy)","stroke-width":1.6,"stroke-dasharray":down?"4,3":"",opacity:0.85}));
+    svg.appendChild(mk("circle",{cx:X0,cy:Y(b),r:4,fill:"var(--g1)"}));svg.appendChild(mk("rect",{x:X1-4,y:Y(a)-4,width:8,height:8,fill:"var(--g2)"}));});
+  [[X0,"Before"],[X1,"After"]].forEach(function(o){var t=mk("text",{x:o[0],y:H-18,"text-anchor":"middle","font-size":"12","font-weight":"700",fill:"var(--ink)","font-family":"Inter, sans-serif"});t.textContent=o[1];svg.appendChild(t);});
+  var lg=mk("text",{x:W/2,y:H-2,"text-anchor":"middle","font-size":"10.5",fill:"var(--muted)","font-family":"Inter, sans-serif"});lg.textContent="solid blue = went up · dashed orange = went down";svg.appendChild(lg);
+  document.getElementById("pdSteps").innerHTML=
+   "<div class='step' data-step='1'><div class='step-h'><span class='step-n'>Step 1</span>Hypotheses</div><p>H₀: μ<sub>d</sub> = 0 (the mean difference is zero; the implant does nothing). H<sub>A</sub>: μ<sub>d</sub> ≠ 0. α = 0.05.</p></div>"+
+   "<div class='step' data-step='2'><div class='step-h'><span class='step-n'>Step 2</span>Mean and SD of the differences</div>"+
+     "<div class='answer-row'><label for='pdM'>d̄ (mean of the differences) =</label><input class='ans' type='text' inputmode='decimal' id='pdM'><span class='status' id='spdM'></span></div>"+
+     "<div class='answer-row'><label for='pdS'>s<sub>d</sub> (SD of the differences) =</label><input class='ans' type='text' inputmode='decimal' id='pdS'><span class='status' id='spdS'></span></div>"+
+     "<details class='deeper'><summary>Show the s<sub>d</sub> working</summary><div id='pdSdWork'></div></details></div>"+
+   "<div class='step' data-step='3'><div class='step-h'><span class='step-n'>Step 3</span>Standard error and t</div>"+
+     "<div class='answer-row'><label for='pdSE'>SE = s<sub>d</sub> / √n =</label><input class='ans' type='text' inputmode='decimal' id='pdSE'><span class='status' id='spdSE'></span></div>"+
+     "<div class='answer-row'><label for='pdT'>t = d̄ / SE =</label><input class='ans' type='text' inputmode='decimal' id='pdT'><span class='status' id='spdT'></span></div></div>"+
+   "<div class='step' data-step='4'><div class='step-h'><span class='step-n'>Step 4</span>df, t-critical and decision</div>"+
+     "<div class='answer-row'><label for='pdDf'>df = n − 1 =</label><input class='ans' type='text' inputmode='numeric' id='pdDf'><span class='status' id='spdDf'></span></div>"+
+     "<div class='answer-row'><label for='pdCr'>t-critical (α = 0.05, two-tailed) =</label><input class='ans' type='text' inputmode='decimal' id='pdCr'><span class='status' id='spdCr'></span></div>"+
+     "<div class='answer-row'><span>Decision:</span><div class='seg' id='pdDec'><button type='button' data-v='r'>Reject H₀</button><button type='button' data-v='f'>Fail to reject H₀</button></div><span class='status' id='spdDec'></span></div>"+
+     "<svg id='pdPlot' viewBox='0 0 680 230' role='img' aria-label='t-distribution with the paired t' hidden></svg><div id='pdFinal'></div></div>";
+  var sw="<div class='tscroll'><table class='data'><thead><tr><th>d</th><th>d − d̄</th><th>(d − d̄)²</th></tr></thead><tbody>", tot=0;
+  DIFF.forEach(function(d){var e=d-PD.dbar;tot+=e*e;sw+="<tr><td class='num'>"+sgn(d,2)+"</td><td class='num'>"+sgn(e,4)+"</td><td class='num'>"+(e*e).toFixed(4)+"</td></tr>";});
+  sw+="</tbody><tfoot><tr><td>Sum</td><td>—</td><td>"+tot.toFixed(4)+"</td></tr></tfoot></table></div><div class='workline'>s<sub>d</sub> = √( Σ(d − d̄)² / (n − 1) ) = √("+tot.toFixed(4)+" / 12) = <b>"+PD.sd.toFixed(3)+"</b></div>";
+  document.getElementById("pdSdWork").innerHTML=sw;
+  addReveals(document.getElementById("pdSteps"),[2,3,4],pdAnswer);
+  document.getElementById("pdSteps").addEventListener("input",checkPaired);
+  document.getElementById("pdDec").querySelectorAll("button").forEach(function(b){b.addEventListener("click",function(){document.getElementById("pdDec").querySelectorAll("button").forEach(function(x){x.classList.toggle("sel",x===b);});document.getElementById("pdDec").setAttribute("data-val",b.getAttribute("data-v"));checkPaired();});});
+  stepDone(document.getElementById("pdSteps"),1,true);
+}
+function checkPaired(){
+  DIFF.forEach(function(d,i){var e=document.getElementById("pdD"+i),v=num(e.value);e.parentElement.className=e.value.trim()===""?"":((near(v,d,0,0.0051))?"ok":(near(-v,d,0,0.0051)?"no":"no"));});
+  var host=document.getElementById("pdSteps");
+  var mOK=mark("pdM",near(gv("pdM"),PD.dbar,0.03,0.0011)||near(-gv("pdM"),PD.dbar,0.03,0.0011),"✓ Negative means antibodies went up on average (before − after < 0).","✗ Add the 13 differences and divide by 13.");
+  var sOK=mark("pdS",near(gv("pdS"),PD.sd,0.015,0.0011),"✓","✗ Same method as a variance (divide by n − 1 = 12), then take the square root.");
+  stepDone(host,2,mOK&&sOK);
+  var seOK=mark("pdSE",near(gv("pdSE"),PD.se,0.02,0.0006)||(sOK&&near(gv("pdSE"),gv("pdS")/Math.sqrt(13),0.005,0.0002)),"✓","✗ Divide s_d by √13.");
+  var tv=gv("pdT"), tOK=mark("pdT",near(Math.abs(tv),Math.abs(PD.t),0.02,0.011)||(mOK&&seOK&&near(Math.abs(tv),Math.abs(gv("pdM")/gv("pdSE")),0.01,0.011)),"✓","✗ t = d̄ ÷ SE.");
+  stepDone(host,3,seOK&&tOK);
+  var dfOK=mark("pdDf",gv("pdDf")===12,"✓ 13 pairs − 1.","✗ For a paired test, df = number of pairs − 1."), crOK=mark("pdCr",near(gv("pdCr"),2.179,0,0.0011),"✓","✗ Row df = 12, two-tailed α = 0.05 column.");
+  var dec=document.getElementById("pdDec").getAttribute("data-val"), decOK=dec?dec==="f":null;
+  setStat(document.getElementById("spdDec"),dec?(decOK?"ok":"bad"):"",dec?(decOK?"✓ |−1.27| < 2.179":"✗ Compare |t| with 2.179."):"");
+  stepDone(host,4,dfOK&&crOK&&decOK);
+  var pl=document.getElementById("pdPlot"); pl.hidden=!(tOK&&crOK); if(tOK&&crOK) drawTdist(pl,12,PD.t,2.179,"2","t");
+  document.getElementById("pdFinal").innerHTML=decOK?"<div class='sentence'><b>Conclusion:</b> Elevating testosterone did not significantly change antibody production in these birds (t<sub>12</sub> = "+sgn(PD.t,2)+", p = "+PD.p.toFixed(2)+"). The data are consistent with no effect, but this does not prove there is none.</div>":"";
+}
+document.getElementById("pdCompare").addEventListener("click",function(){
+  var W=welchStats(mean(BEFORE),Math.sqrt(vari(BEFORE)),13,mean(AFTER),Math.sqrt(vari(AFTER)),13);
+  document.getElementById("pdCompareOut").innerHTML="<div class='tscroll'><table class='rtable'><thead><tr><th>Analysis</th><th>Signal (difference)</th><th>Noise (SE)</th><th>t</th><th>df</th><th>p</th></tr></thead><tbody>"+
+    "<tr class='rec'><td>Paired t-test (correct)</td><td>"+sgn(PD.dbar,3)+"</td><td>"+PD.se.toFixed(3)+"</td><td>"+sgn(PD.t,2)+"</td><td>12</td><td>"+fmtP(PD.p)+"</td></tr>"+
+    "<tr><td>Independent t-test (wrong for this design)</td><td>"+sgn(mean(BEFORE)-mean(AFTER),3)+"</td><td>"+W.seS.toFixed(3)+"</td><td>"+sgn(W.tS,2)+"</td><td>24</td><td>"+fmtP(W.pS)+"</td></tr></tbody></table></div>"+
+    "<p>The signal is the same, but the independent test's noise is about <b>"+(W.seS/PD.se).toFixed(1)+"× bigger</b>, because it includes all the bird-to-bird variation (look at the spread of the dots in the chart). Pairing removes that variation, so the paired test has more <b>power</b>, even though it has fewer df (12 instead of 24). Here neither test finds a significant change, but with a slightly larger effect only the paired test would.</p>";
+});
+
+/* =========== Tab 7: meaning =========== */
+var mI={d:document.getElementById("mDiff"),n:document.getElementById("mN")};
+function drawMeaning(){
+  var diff=+mI.d.value,n=+mI.n.value,s=0.6; document.getElementById("mDiffO").textContent=diff.toFixed(2); document.getElementById("mNO").textContent=n;
+  var t=diff/(s*Math.sqrt(2/n)), df=2*n-2, p=p2(t,df), d=diff/s, lab=d<0.2?"Negligible":d<0.5?"Small":d<0.8?"Medium":"Large";
+  document.getElementById("mT").textContent=t.toFixed(2);document.getElementById("mP").textContent=fmtP(p);document.getElementById("mD").textContent=d.toFixed(2);document.getElementById("mDl").textContent=lab;
+  document.querySelectorAll("#ladder tbody tr").forEach(function(r){var lo=+r.getAttribute("data-lo"),hi=+r.getAttribute("data-hi");r.classList.toggle("on",p>lo&&p<=hi);});
+  var sig=p<0.05;
+  document.getElementById("mSent").innerHTML=(sig&&d<0.5)?"<b>Statistically significant, but a "+lab.toLowerCase()+" effect.</b> With "+n+" frogs per group, even a "+diff.toFixed(2)+" g difference is detectable. Whether "+diff.toFixed(2)+" g matters for a frog is a biology question, not a statistics question.":
+    sig?"<b>Significant and a "+lab.toLowerCase()+" effect.</b> The difference is both unlikely to be chance and big relative to the natural variation.":
+    (d>=0.5?"<b>Not significant, even though the effect is "+lab.toLowerCase()+".</b> With only "+n+" frogs per group, the study may be too small to detect it (low power, risk of a Type II error).":"<b>Not significant, and a "+lab.toLowerCase()+" effect.</b> The difference could easily be random variation.");
+}
+Object.keys(mI).forEach(function(k){mI[k].addEventListener("input",drawMeaning);});
+function buildES(){
+  var lt=welchStats(8.5,Math.sqrt(vari(LIZ1)),8,7.6875,Math.sqrt(vari(LIZ2)),8), fa=[12.1,13.4,11.8,12.9,13.6,12.5,13.1,12.7], fb=[14.2,15.1,13.8,14.7,15.3,14.0,14.9,14.5];
+  var spH=Math.sqrt((29*2.71*2.71+153*2.63*2.63)/182);
+  var rows=[["Lizard tail length (Tab 3)","t₁₄ = 3.79","0.0020",(0.8125/Math.sqrt((vari(LIZ1)+vari(LIZ2))/2))],
+            ["Frog body mass (Tab 4)","t₁₄ = −6.23","< 0.0001",((mean(fa)-mean(fb))/Math.sqrt((vari(fa)+vari(fb))/2))],
+            ["Horned lizard spikes (lecture)","t₁₈₂ ≈ −4.34","< 0.0001",((21.99-24.28)/spH)],
+            ["Blackbird antibodies (Tab 6, paired)","t₁₂ = −1.27","0.23",PD.dbar/PD.sd]];
+  document.getElementById("esTable").innerHTML="<thead><tr><th>Study</th><th>t</th><th>p</th><th>Cohen's d</th><th>Size</th></tr></thead><tbody>"+rows.map(function(r){var a=Math.abs(r[3]);return "<tr><td>"+r[0]+"</td><td>"+r[1]+"</td><td>"+r[2]+"</td><td>"+sgn(r[3],2)+"</td><td>"+(a<0.2?"Negligible":a<0.5?"Small":a<0.8?"Medium":"Large")+"</td></tr>";}).join("")+"</tbody>";
+}
+
+/* =========== Tab 8: Data Lab =========== */
+var EX={lizard:{n1:"Sunny grassland",n2:"Shaded forest",a:LIZ1,b:LIZ2,d:"ind"},frog:{n1:"Urban park",n2:"Rural wetland",a:[12.1,13.4,11.8,12.9,13.6,12.5,13.1,12.7],b:[14.2,15.1,13.8,14.7,15.3,14.0,14.9,14.5],d:"ind"},bird:{n1:"Before implant",n2:"After implant",a:BEFORE,b:AFTER,d:"pair"}};
+var labDesign="ind";
+function parseList(s){return (s.match(/[-−+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/gi)||[]).map(function(x){return parseFloat(x.replace("−","-"));}).filter(isFinite);}
+function setDesign(v){labDesign=v;document.querySelectorAll("#labDesign button").forEach(function(b){b.classList.toggle("sel",b.getAttribute("data-v")===v);});runLab();}
+document.querySelectorAll("#labDesign button").forEach(function(b){b.addEventListener("click",function(){setDesign(b.getAttribute("data-v"));});});
+document.querySelectorAll("[data-ex]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-ex");
+  if(k==="clear"){["labX1","labX2"].forEach(function(id){document.getElementById(id).value="";});document.getElementById("labN1").value="Group 1";document.getElementById("labN2").value="Group 2";runLab();return;}
+  var e=EX[k];document.getElementById("labN1").value=e.n1;document.getElementById("labN2").value=e.n2;document.getElementById("labX1").value=e.a.join("\n");document.getElementById("labX2").value=e.b.join("\n");setDesign(e.d);});});
+["labX1","labX2","labN1","labN2","labTail","labA"].forEach(function(id){document.getElementById(id).addEventListener("input",runLab);document.getElementById(id).addEventListener("change",runLab);});
+function pTail(t,df,tail){return tail==="2"?p2(t,df):(tail==="g"?pUpper(t,df):1-pUpper(t,df));}
+function critTail(df,alpha,tail){return tail==="2"?tcrit(alpha,df):tcrit(2*alpha,df);}
+function stripPlot(a,b,n1,n2){
+  var all=a.concat(b), lo=Math.min.apply(null,all), hi=Math.max.apply(null,all), pad=(hi-lo)*0.12||1; lo-=pad; hi+=pad;
+  var W=680,H=150,L=130,R=20; function X(v){return L+(v-lo)/(hi-lo)*(W-L-R);}
+  var s="<svg viewBox='0 0 "+W+" "+H+"' role='img' aria-label='Dot plot of both groups'>";
+  var step=niceStep((hi-lo)/6), t0=Math.ceil(lo/step)*step;
+  for(var t=t0;t<=hi;t+=step){s+="<line x1='"+X(t)+"' x2='"+X(t)+"' y1='12' y2='"+(H-30)+"' stroke='var(--line)'/><text x='"+X(t)+"' y='"+(H-12)+"' text-anchor='middle' font-size='11' fill='var(--muted)' font-family='IBM Plex Mono, monospace'>"+(+t.toFixed(4))+"</text>";}
+  [[a,40,"var(--g1)",n1,"c"],[b,85,"var(--g2)",n2,"s"]].forEach(function(g){
+    s+="<text x='"+(L-10)+"' y='"+(g[1]+4)+"' text-anchor='end' font-size='12' font-weight='700' fill='"+g[2]+"' font-family='Inter, sans-serif'>"+esc(g[3]).slice(0,18)+"</text>";
+    var seen={};
+    g[0].forEach(function(v){var k=v.toFixed(6);seen[k]=(seen[k]||0)+1;var dy=((seen[k]-1)%5)*6*((seen[k]%2)?1:-1);
+      s+=g[4]==="c"?"<circle cx='"+X(v)+"' cy='"+(g[1]+dy)+"' r='5' fill='"+g[2]+"' fill-opacity='.7'/>":"<rect x='"+(X(v)-4.5)+"' y='"+(g[1]+dy-4.5)+"' width='9' height='9' fill='"+g[2]+"' fill-opacity='.7'/>";});
+    var m=mean(g[0]); s+="<line x1='"+X(m)+"' x2='"+X(m)+"' y1='"+(g[1]-16)+"' y2='"+(g[1]+16)+"' stroke='var(--ink)' stroke-width='3'/>";
+  });
+  return s+"<text x='"+(W-R)+"' y='12' text-anchor='end' font-size='11' fill='var(--muted)' font-family='Inter, sans-serif'>black bar = mean</text></svg>";
+}
+function niceStep(x){var p=Math.pow(10,Math.floor(Math.log10(x))),r=x/p;return (r<1.5?1:r<3?2:r<7?5:10)*p;}
+function levene(a,b){ // mean-centred Levene = ANOVA on |x - mean|; with 2 groups F = t^2
+  var za=a.map(function(v){return Math.abs(v-mean(a));}), zb=b.map(function(v){return Math.abs(v-mean(b));});
+  var N=a.length+b.length, dfS=N-2, sp2=(ss(za)+ss(zb))/dfS; if(sp2<=0) return {F:NaN,p:NaN,df2:dfS};
+  var t=(mean(za)-mean(zb))/Math.sqrt(sp2*(1/a.length+1/b.length)); return {F:t*t,p:p2(t,dfS),df2:dfS};
+}
+function runLab(){
+  var a=parseList(document.getElementById("labX1").value), b=parseList(document.getElementById("labX2").value);
+  var n1=document.getElementById("labN1").value||"Group 1", n2=document.getElementById("labN2").value||"Group 2", tail=document.getElementById("labTail").value, al=+document.getElementById("labA").value;
+  document.getElementById("labP1").textContent=a.length+" values read"; document.getElementById("labP2").textContent=b.length+" values read";
+  var out=document.getElementById("labOut");
+  if(a.length<2||b.length<2){out.innerHTML="<div class='panel'><p class='note' style='margin:0;'>Enter at least 2 numbers in each group, or load an example above.</p></div>";return;}
+  if(labDesign==="pair"&&a.length!==b.length){out.innerHTML="<div class='warn'><b>Paired data need the same number of values in each column</b> (one before and one after for each individual). You have "+a.length+" and "+b.length+".</div>";return;}
+  var h="<div class='panel'><h3>Your data</h3>"+stripPlot(a,b,n1,n2)+"<div class='tscroll'><table class='rtable'><thead><tr><th>Group</th><th>n</th><th>Mean (x̄)</th><th>SD (s)</th><th>Variance (s²)</th></tr></thead><tbody>"+
+    [[n1,a],[n2,b]].map(function(g){return "<tr><td>"+esc(g[0])+"</td><td>"+g[1].length+"</td><td>"+f(mean(g[1]))+"</td><td>"+f(Math.sqrt(vari(g[1])))+"</td><td>"+f(vari(g[1]))+"</td></tr>";}).join("")+"</tbody></table></div>";
+  if(a.length<5||b.length<5) h+="<p class='note'>With fewer than about 5 values per group it's hard to tell whether the data are normal. Interpret with care.</p>";
+  h+="</div>";
+  var Hs=tail==="2"?"μ₁ ≠ μ₂":(tail==="g"?"μ₁ &gt; μ₂":"μ₁ &lt; μ₂"), tailTxt=tail==="2"?"two-tailed":"one-tailed";
+  var verdict,t,df,p,c,dEff,work,extra="";
+  if(labDesign==="ind"){
+    var m1=mean(a),m2=mean(b),v1=vari(a),v2=vari(b),W=welchStats(m1,Math.sqrt(v1),a.length,m2,Math.sqrt(v2),b.length),L=levene(a,b);
+    var useW=isFinite(L.p)&&L.p<=0.05;
+    var pS=pTail(W.tS,W.dfS,tail),pW=pTail(W.tW,W.dfW,tail),cS=critTail(W.dfS,al,tail),cW=critTail(W.dfW,al,tail);
+    t=useW?W.tW:W.tS; df=useW?W.dfW:W.dfS; p=useW?pW:pS; c=useW?cW:cS;
+    dEff=(m1-m2)/Math.sqrt(((a.length-1)*v1+(b.length-1)*v2)/(a.length+b.length-2));
+    h+="<div class='panel'><h3>Check: equal variances? (Levene's test)</h3><p style='margin-top:0;'>F(1, "+L.df2+") = "+f(L.F,3)+", p = "+(isFinite(L.p)?fmtP(L.p):"–")+". "+(useW?"<b>p ≤ 0.05: the variances differ.</b> Use Welch's t-test.":"<b>p &gt; 0.05: no evidence the variances differ.</b> Student's t-test is fine.")+"</p><p class='note'>Also check normality: look at the dot plot for strong skew or outliers, or use jamovi's normality test.</p></div>";
+    function rr(name,rec,T,DF,C,P){var rej=P<=al;return "<tr"+(rec?" class='rec'":"")+"><td>"+name+(rec?"<span class='pillnote'>use this</span>":"")+"</td><td>"+sgn(T,3)+"</td><td>"+(Math.abs(DF-Math.round(DF))<1e-9?DF:DF.toFixed(2))+"</td><td>"+(tail==="2"?"± ":"")+C.toFixed(3)+"</td><td>"+fmtP(P)+"</td><td>"+(rej?"Reject H₀":"Fail to reject H₀")+"</td></tr>";}
+    h+="<div class='panel'><h3>Results (H<sub>A</sub>: "+Hs+", "+tailTxt+", α = "+al+")</h3><div class='tscroll'><table class='rtable'><thead><tr><th>Test</th><th>t</th><th>df</th><th>t-critical</th><th>p</th><th>Decision</th></tr></thead><tbody>"+rr("Student's (pooled)",!useW,W.tS,W.dfS,cS,pS)+rr("Welch's",useW,W.tW,W.dfW,cW,pW)+"</tbody></table></div>";
+    var seAct=Math.sqrt(v1/a.length+v2/b.length);
+    work="<div class='workline'>x̄₁ = "+f(m1)+" &nbsp; x̄₂ = "+f(m2)+"<br>s₁² = "+f(v1)+" &nbsp; s₂² = "+f(v2)+"<br>SE = √(s₁²/n₁ + s₂²/n₂) = √("+f(v1)+"/"+a.length+" + "+f(v2)+"/"+b.length+") = <b>"+f(seAct)+"</b><br>t = (x̄₁ − x̄₂) / SE = ("+f(m1)+" − "+f(m2)+") / "+f(seAct)+" = <b>"+sgn((m1-m2)/seAct,3)+"</b><br>df = n₁ + n₂ − 2 = <b>"+(a.length+b.length-2)+"</b>"+(a.length!==b.length?"<br><span class='note'>With unequal n, Student's test pools the variances, so its SE ("+f(W.seS)+") differs a little from the activity formula above.</span>":"")+"</div>";
+  } else {
+    var d=a.map(function(v,i){return v-b[i];}), db=mean(d), sd=Math.sqrt(vari(d)), se=sd/Math.sqrt(d.length);
+    t=db/se; df=d.length-1; p=pTail(t,df,tail); c=critTail(df,al,tail); dEff=db/sd;
+    h+="<div class='panel'><h3>Results: paired t-test (H<sub>A</sub>: μ<sub>d</sub> "+(tail==="2"?"≠":tail==="g"?"&gt;":"&lt;")+" 0, "+tailTxt+", α = "+al+")</h3><div class='tscroll'><table class='rtable'><thead><tr><th>Test</th><th>t</th><th>df</th><th>t-critical</th><th>p</th><th>Decision</th></tr></thead><tbody><tr class='rec'><td>Paired t-test</td><td>"+sgn(t,3)+"</td><td>"+df+"</td><td>"+(tail==="2"?"± ":"")+c.toFixed(3)+"</td><td>"+fmtP(p)+"</td><td>"+(p<=al?"Reject H₀":"Fail to reject H₀")+"</td></tr></tbody></table></div>";
+    work="<div class='workline'>differences d = x₁ − x₂: "+d.map(function(v){return sgn(v,3);}).join(", ")+"<br>d̄ = "+sgn(db,4)+" &nbsp; s<sub>d</sub> = "+f(sd)+" &nbsp; n = "+d.length+"<br>SE = s<sub>d</sub> / √n = "+f(sd)+" / √"+d.length+" = <b>"+f(se)+"</b><br>t = d̄ / SE = <b>"+sgn(t,3)+"</b> &nbsp; df = n − 1 = <b>"+df+"</b></div>";
+  }
+  var rej=p<=al, ad=Math.abs(dEff), lab=ad<0.2?"negligible":ad<0.5?"small":ad<0.8?"medium":"large";
+  h+="<svg id='labPlot' viewBox='0 0 680 230' role='img' aria-label='t-distribution with your t'></svg>";
+  h+="<div class='stat-row'><div class='stat'><span class='k'>t</span><span class='v'>"+sgn(t,3)+"</span></div><div class='stat pv'><span class='k'>p-value</span><span class='v'>"+fmtP(p)+"</span></div><div class='stat amber'><span class='k'>Effect size (Cohen's d)</span><span class='v'>"+sgn(dEff,2)+"</span></div><div class='stat'><span class='k'>Decision at α = "+al+"</span><span class='v' style='font-size:15px;padding-top:3px;'>"+(rej?"Reject H₀":"Fail to reject H₀")+"</span></div></div>";
+  h+="<div class='sentence'>"+(rej?"There is a statistically significant difference between "+esc(n1)+" and "+esc(n2):"There is no statistically significant difference between "+esc(n1)+" and "+esc(n2))+" (t<sub>"+(Math.abs(df-Math.round(df))<1e-9?df:df.toFixed(1))+"</sub> = "+sgn(t,2)+", p "+(p<0.001?"&lt; 0.001":"= "+fmtP(p))+"). The effect size is "+lab+" (d = "+sgn(dEff,2)+").</div>";
+  h+="<details class='deeper'><summary>Show the working (to check your hand calculation)</summary><div>"+work+"</div></details></div>";
+  out.innerHTML=h;
+  drawTdist(document.getElementById("labPlot"),df,t,c,tail,"t");
+}
+
+/* =========== t-table & drawer =========== */
+function buildTTable(host,uid,readEl){
+  var h="<table class='lk' id='"+uid+"'><thead><tr><th class='rowh'>df</th>";
+  T_ALPHAS.forEach(function(a,i){h+="<th data-c='"+i+"'>two-tailed α = "+a.toFixed(2)+"<br><span class='subhead'>one-tailed "+(a/2).toFixed(3).replace(/0$/,"")+"</span></th>";});
+  h+="</tr></thead><tbody>";
+  T_ROWS.forEach(function(row,ri){h+="<tr><td class='rowh'>"+(row[0]===Infinity?"∞":row[0])+"</td>";
+    for(var c=0;c<5;c++) h+="<td data-r='"+ri+"' data-c='"+c+"'>"+row[c+1].toFixed(3)+"</td>";
+    h+="</tr>";});
+  host.innerHTML=h+"</tbody></table>";
+  wireTable(host.querySelector("table"),readEl,function(td){
+    var r=T_ROWS[+td.getAttribute("data-r")],c=+td.getAttribute("data-c");
+    return "Row <b>df = "+(r[0]===Infinity?"∞":r[0])+"</b>, column <b>two-tailed α = "+T_ALPHAS[c].toFixed(2)+"</b> → t-critical = <b>"+td.textContent+"</b>. Reject H₀ if |t calculated| is bigger than this.";
+  });
+}
+function wireTable(tbl,readEl,describe){
+  function cells(td,cls,on){
+    var r=td.getAttribute("data-r"),c=td.getAttribute("data-c");
+    tbl.querySelectorAll("td[data-r='"+r+"'],td[data-c='"+c+"'],th[data-c='"+c+"']").forEach(function(x){x.classList.toggle(cls,on);});
+    var rh=td.parentElement.querySelector(".rowh"); if(rh) rh.classList.toggle(cls,on);
+  }
+  var pinned=null;
+  tbl.addEventListener("mouseover",function(e){var td=e.target.closest("td[data-r]");if(!td) return;tbl.querySelectorAll(".hov").forEach(function(x){x.classList.remove("hov");});td.classList.add("hov");});
+  tbl.addEventListener("mouseleave",function(){tbl.querySelectorAll(".hov").forEach(function(x){x.classList.remove("hov");});});
+  tbl.addEventListener("click",function(e){var td=e.target.closest("td[data-r]");if(!td) return;
+    tbl.querySelectorAll(".xr,.pin").forEach(function(x){x.classList.remove("xr","pin");});
+    if(pinned===td){pinned=null;readEl.innerHTML="Click a cell to read it.";return;}
+    pinned=td; cells(td,"xr",true); td.classList.remove("xr"); td.classList.add("pin"); readEl.innerHTML=describe(td);
+  });
+}
+function tableBlock(host,prefix){
+  host.innerHTML="<p class='how'><b>How to read it:</b> pick the <b>row</b> for your degrees of freedom (independent: n₁ + n₂ − 2; paired: n − 1) and the <b>column</b> for your α. Most tests in this activity are two-tailed with α = 0.05. If your df isn't listed, use the next smaller row (the cautious choice). The ∞ row is the same as the Z cutoffs.</p><div class='lk-read' id='"+prefix+"ReadT'>Click a cell to read it.</div><div class='lk-scroll' id='"+prefix+"T'></div>";
+  buildTTable(document.getElementById(prefix+"T"),prefix+"TT",document.getElementById(prefix+"ReadT"));
+}
+var drawer=document.getElementById("drawer"), drawerBody=document.getElementById("drawerBody");
+function openDrawer(){drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");document.getElementById("drawerClose").focus();}
+function closeDrawer(){drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");}
+document.getElementById("fab").addEventListener("click",function(){drawer.classList.contains("open")?closeDrawer():openDrawer();});
+document.getElementById("drawerClose").addEventListener("click",closeDrawer);
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeDrawer();}});
+function pinCell(tblId,r,c){
+  var tbl=document.getElementById(tblId); if(!tbl) return;
+  var td=tbl.querySelector("td[data-r='"+r+"'][data-c='"+c+"']"); if(!td) return;
+  if(!td.classList.contains("pin")) td.click();
+  var sc=td.closest(".lk-scroll"); if(sc){ setTimeout(function(){ var d=td.getBoundingClientRect().top-sc.getBoundingClientRect().top; sc.scrollTop=Math.max(0,sc.scrollTop+d-sc.clientHeight/2); },300); }
+}
+
+/* =========== Calculator =========== */
+var calc={pop:document.getElementById("calcPop"),inp:document.getElementById("calcIn"),res:document.getElementById("calcRes"),ans:0,last:NaN,target:null};
+function tokenize(s){
+  s=s.replace(/×/g,"*").replace(/÷/g,"/").replace(/−/g,"-").replace(/√/g,"sqrt").replace(/,/g,"").replace(/\s+/g,"").toLowerCase();
+  var out=[],i=0;
+  while(i<s.length){var ch=s[i];
+    if(/[0-9.]/.test(ch)){var j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;if(s[j]==="e"&&/[-+0-9]/.test(s[j+1]||"")){j++;if(/[-+]/.test(s[j]))j++;while(j<s.length&&/[0-9]/.test(s[j]))j++;}
+      var t=s.slice(i,j); if((t.match(/\./g)||[]).length>1) throw new Error("A number has two decimal points."); out.push({t:"n",v:parseFloat(t)}); i=j; continue;}
+    if(s.startsWith("sqrt",i)){out.push({t:"f",v:"sqrt"});i+=4;continue;}
+    if(s.startsWith("ans",i)){out.push({t:"n",v:calc.ans});i+=3;continue;}
+    if(s.startsWith("pi",i)){out.push({t:"n",v:Math.PI});i+=2;continue;}
+    if("+-*/^()".indexOf(ch)>=0){out.push({t:ch});i++;continue;}
+    if(ch==="²"){out.push({t:"^"});out.push({t:"n",v:2});i++;continue;}
+    throw new Error("I don't recognize \""+ch+"\".");
+  }
+  return out;
+}
+function evaluate(str){
+  var tk=tokenize(str),p=0;
+  function peek(){return tk[p];} function eat(t){if(!tk[p]||tk[p].t!==t) throw new Error(t===")"?"A bracket is missing a \")\".":"Something is missing."); p++;}
+  function expr(){var v=term();while(peek()&&(peek().t==="+"||peek().t==="-")){var o=tk[p++].t,r=term();v=o==="+"?v+r:v-r;}return v;}
+  function term(){var v=unary();while(peek()&&(peek().t==="*"||peek().t==="/"||peek().t==="("||peek().t==="f"||peek().t==="n")){var o=peek().t;if(o==="*"||o==="/"){p++;var r=unary();if(o==="/"&&r===0) throw new Error("You can't divide by zero.");v=o==="*"?v*r:v/r;}else{v=v*unary();}}return v;}
+  function unary(){if(peek()&&peek().t==="-"){p++;return -unary();}if(peek()&&peek().t==="+"){p++;return unary();}return power();}
+  function power(){var b=primary();if(peek()&&peek().t==="^"){p++;var e=unary();return Math.pow(b,e);}return b;}
+  function primary(){var k=peek();if(!k) throw new Error("The calculation ends too early.");
+    if(k.t==="n"){p++;return k.v;}
+    if(k.t==="("){p++;var v=expr();eat(")");return v;}
+    if(k.t==="f"){p++;var a=power();if(a<0) throw new Error("Can't take the square root of a negative number.");return Math.sqrt(a);}
+    throw new Error("Check the operators near \""+(k.t)+"\".");}
+  var v=expr(); if(p<tk.length) throw new Error(tk[p].t===")"?"There's an extra \")\".":"Something doesn't fit here."); return v;
+}
+function fmtCalc(v){if(!isFinite(v)) return "Error";var a=Math.abs(v);if(a!==0&&(a<1e-6||a>=1e12)) return v.toExponential(6);return String(+v.toPrecision(10));}
+function calcLive(){var s=calc.inp.value;if(s.trim()===""){calc.res.className="calc-res";calc.res.textContent="0";calc.last=NaN;updSend();return;}
+  try{var v=evaluate(s);calc.last=v;calc.res.className="calc-res";calc.res.textContent="= "+fmtCalc(v);}catch(e){calc.last=NaN;calc.res.className="calc-res err";calc.res.textContent=e.message;}updSend();}
+function calcEquals(){var s=calc.inp.value;if(s.trim()==="")return;try{var v=evaluate(s);calc.ans=v;calc.last=v;
+  var hist=document.getElementById("calcHist"),d=document.createElement("div");d.innerHTML="<span>"+esc(s)+"</span><b>"+fmtCalc(v)+"</b>";d.title="Click to reuse this result";d.addEventListener("click",function(){insertCalc(fmtCalc(v));});hist.insertBefore(d,hist.firstChild);while(hist.children.length>8)hist.removeChild(hist.lastChild);
+  calc.inp.value=fmtCalc(v);calcLive();}catch(e){calcLive();}}
+function insertCalc(txt){var i=calc.inp,st=i.selectionStart==null?i.value.length:i.selectionStart,en=i.selectionEnd==null?i.value.length:i.selectionEnd;i.value=i.value.slice(0,st)+txt+i.value.slice(en);var pos=st+txt.length;i.focus();try{i.setSelectionRange(pos,pos);}catch(e){}calcLive();}
+document.getElementById("calcKeys").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;var k=b.getAttribute("data-k");
+  if(k==="="){calcEquals();return;} if(k==="C"){calc.inp.value="";calcLive();calc.inp.focus();return;}
+  if(k==="BK"){var i=calc.inp,st=i.selectionStart==null?i.value.length:i.selectionStart,en=i.selectionEnd==null?i.value.length:i.selectionEnd;if(st===en&&st>0){i.value=i.value.slice(0,st-1)+i.value.slice(en);st--;}else i.value=i.value.slice(0,st)+i.value.slice(en);i.focus();try{i.setSelectionRange(st,st);}catch(e2){}calcLive();return;}
+  if(k==="ans"){insertCalc("Ans");return;} if(k==="neg"){insertCalc("-");return;}
+  insertCalc(k);});
+calc.inp.addEventListener("input",calcLive);
+calc.inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();calcEquals();}});
+function openCalc(){calc.pop.hidden=false;document.getElementById("calcFab").setAttribute("aria-expanded","true");calc.inp.focus();}
+function closeCalc(){calc.pop.hidden=true;document.getElementById("calcFab").setAttribute("aria-expanded","false");}
+document.getElementById("calcFab").addEventListener("click",function(){calc.pop.hidden?openCalc():closeCalc();});
+document.getElementById("calcClose").addEventListener("click",closeCalc);
+document.addEventListener("focusin",function(e){var t=e.target;if(t&&t.classList&&t.classList.contains("ans")){calc.target=t;updSend();}});
+function updSend(){var b=document.getElementById("calcSend"),l=document.getElementById("calcTarget");var ok=calc.target&&document.body.contains(calc.target)&&isFinite(calc.last);b.disabled=!ok;
+  l.textContent=calc.target&&document.body.contains(calc.target)?"Goes to: "+(calc.target.getAttribute("aria-label")||(calc.target.labels&&calc.target.labels[0]?calc.target.labels[0].textContent.replace(/\s+/g," ").trim():"the last box you clicked")):"Click an answer box first.";}
+document.getElementById("calcSend").addEventListener("click",function(){if(!calc.target||!isFinite(calc.last))return;var v=+calc.last.toFixed(6);calc.target.value=String(v);calc.target.dispatchEvent(new Event("input",{bubbles:true}));calc.target.focus();});
+
+/* ---------- init ---------- */
+buildSort(); renderFlow(); drawSignal(); renderWorked();
+renderFrTable(); buildFrWork(); frDataChanged(false);
+drawWelch(); buildPaired(); drawMeaning(); buildES();
+tableBlock(drawerBody,"dr"); tableBlock(document.getElementById("inlineTables"),"in");
+document.querySelector("[data-ex='lizard']").click();
+var h=(location.hash||"").replace("#","");
+showTab(TABS.indexOf(h)>=0?h:"which",false);
+})();
+</script>
+
+</html>
